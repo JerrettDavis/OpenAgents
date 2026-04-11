@@ -54,8 +54,8 @@ Open job detail and use tabs:
 
 ## 4) Configure workflows and providers
 
-- **Workflows** page lets you inspect and enable/disable workflow definitions.
-- **Settings** page lets you inspect provider definitions, toggle them, and verify runtime roots.
+- **Workflows** page lets you create workflow definitions, then enable/disable them.
+- **Settings** page lets you create provider definitions, toggle them, and verify runtime roots.
 
 ![Workflows](./screenshots/06-workflows.png)
 ![Settings](./screenshots/09-settings.png)

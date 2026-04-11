@@ -29,7 +29,7 @@ public sealed class JobEndpointsIntegrationTests : IClassFixture<OrchestratorApi
     // Server responses are snake_case; use these options for both serialisation and deserialisation.
     private static readonly JsonSerializerOptions _json = new()
     {
-        PropertyNamingPolicy        = JsonNamingPolicy.SnakeCaseLower,
+        PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
         PropertyNameCaseInsensitive = true
     };
 
@@ -48,12 +48,16 @@ public sealed class JobEndpointsIntegrationTests : IClassFixture<OrchestratorApi
         bool IsEnabled,
         TestWorkflowCompatibility[] ProviderCompatibility);
     record TestWorkflowListResponse(TestWorkflowItem[] Items);
+    record TestProviderDetail(Guid Id, string ProviderId, string Name, string Version, string DockerImage, bool IsEnabled);
+    record TestProviderCreateResponse(TestProviderDetail Provider);
+    record TestWorkflowDetail(Guid Id, string Slug, string Name, string Version, bool IsEnabled);
+    record TestWorkflowCreateResponse(TestWorkflowDetail Workflow);
     record TestEventListResponse(JsonElement[] Items);
 
     public JobEndpointsIntegrationTests(OrchestratorApiFactory factory)
     {
         _factory = factory;
-        _client  = factory.CreateClient();
+        _client = factory.CreateClient();
     }
 
     /// <summary>POST with snake_case serialisation to match what the real frontend sends.</summary>
@@ -97,6 +101,33 @@ public sealed class JobEndpointsIntegrationTests : IClassFixture<OrchestratorApi
             providers.Select(p => p.ProviderId).OrderBy(id => id).ToArray());
     }
 
+    [Fact]
+    public async Task Post_Providers_ValidRequest_ReturnsCreatedProvider()
+    {
+        var request = new
+        {
+            provider_id = $"integration-provider-{Guid.NewGuid():N}",
+            name = "Integration Provider",
+            version = "1.0.0",
+            docker_image = "ghcr.io/openagents/integration-provider:latest",
+            description = "Created by integration test",
+            support_level = "Experimental",
+            is_enabled = false
+        };
+
+        var response = await PostJsonAsync("/api/v1/providers", request);
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+        var wrapper = await ReadJson<TestProviderCreateResponse>(response);
+        Assert.NotNull(wrapper);
+        Assert.Equal(request.provider_id, wrapper.Provider.ProviderId);
+        Assert.Equal(request.name, wrapper.Provider.Name);
+        Assert.Equal(request.version, wrapper.Provider.Version);
+        Assert.False(wrapper.Provider.IsEnabled);
+        Assert.Equal($"/api/v1/providers/{request.provider_id}", response.Headers.Location?.OriginalString);
+    }
+
     // ──────────────────────────────────────────────────────────
     // Workflows
     // ──────────────────────────────────────────────────────────
@@ -113,6 +144,33 @@ public sealed class JobEndpointsIntegrationTests : IClassFixture<OrchestratorApi
         Assert.Equal(
             ["claude-code", "codex", "copilot", "gemini", "opencode"],
             planning.ProviderCompatibility.Select(pc => pc.ProviderId).OrderBy(id => id).ToArray());
+    }
+
+    [Fact]
+    public async Task Post_Workflows_ValidRequest_ReturnsCreatedWorkflow()
+    {
+        var request = new
+        {
+            name = "Integration Workflow",
+            slug = $"integration-workflow-{Guid.NewGuid():N}",
+            version = "1.0.0",
+            description = "Created by integration test",
+            category = "testing",
+            is_enabled = false,
+            is_experimental = true
+        };
+
+        var response = await PostJsonAsync("/api/v1/workflows", request);
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+        var wrapper = await ReadJson<TestWorkflowCreateResponse>(response);
+        Assert.NotNull(wrapper);
+        Assert.Equal(request.slug, wrapper.Workflow.Slug);
+        Assert.Equal(request.name, wrapper.Workflow.Name);
+        Assert.Equal(request.version, wrapper.Workflow.Version);
+        Assert.False(wrapper.Workflow.IsEnabled);
+        Assert.Equal($"/api/v1/workflows/{request.slug}", response.Headers.Location?.OriginalString);
     }
 
     // ──────────────────────────────────────────────────────────
@@ -135,14 +193,14 @@ public sealed class JobEndpointsIntegrationTests : IClassFixture<OrchestratorApi
     public async Task Post_Jobs_ValidRequest_Returns201WithJobDetail()
     {
         var request = new CreateJobRequest(
-            Title:           "Integration Test Job",
-            Description:     "Created by integration test",
-            WorkflowId:      "planning",        // slug lookup
+            Title: "Integration Test Job",
+            Description: "Created by integration test",
+            WorkflowId: "planning",        // slug lookup
             WorkflowVersion: null,
-            ProviderId:      "claude-code",
-            Model:           "claude-opus-4-5",
-            WorkspacePath:   null,
-            Parameters:      null);
+            ProviderId: "claude-code",
+            Model: "claude-opus-4-5",
+            WorkspacePath: null,
+            Parameters: null);
 
         var response = await PostJsonAsync("/api/v1/jobs", request);
 
@@ -153,10 +211,10 @@ public sealed class JobEndpointsIntegrationTests : IClassFixture<OrchestratorApi
         var dto = wrapper.Job;
         Assert.NotNull(dto);
         Assert.Equal("Integration Test Job", dto.Title);
-        Assert.Equal("Queued",               dto.State);
-        Assert.Equal("planning",             dto.WorkflowId);
-        Assert.Equal("claude-code",          dto.ProviderId);
-        Assert.NotEqual(string.Empty,        dto.Id);
+        Assert.Equal("Queued", dto.State);
+        Assert.Equal("planning", dto.WorkflowId);
+        Assert.Equal("claude-code", dto.ProviderId);
+        Assert.NotEqual(string.Empty, dto.Id);
 
         // Location header should point to the new job, using the API's relative URI contract
         Assert.Equal($"/api/v1/jobs/{dto.Id}", response.Headers.Location?.OriginalString);
@@ -189,14 +247,14 @@ public sealed class JobEndpointsIntegrationTests : IClassFixture<OrchestratorApi
     public async Task Post_Jobs_UnknownWorkflow_Returns400WithErrorEnvelope()
     {
         var request = new CreateJobRequest(
-            Title:           "Bad Workflow Job",
-            Description:     null,
-            WorkflowId:      "nonexistent-workflow",
+            Title: "Bad Workflow Job",
+            Description: null,
+            WorkflowId: "nonexistent-workflow",
             WorkflowVersion: null,
-            ProviderId:      "claude-code",
-            Model:           null,
-            WorkspacePath:   null,
-            Parameters:      null);
+            ProviderId: "claude-code",
+            Model: null,
+            WorkspacePath: null,
+            Parameters: null);
 
         var response = await PostJsonAsync("/api/v1/jobs", request);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -211,14 +269,14 @@ public sealed class JobEndpointsIntegrationTests : IClassFixture<OrchestratorApi
     public async Task Post_Jobs_UnknownProvider_Returns400()
     {
         var request = new CreateJobRequest(
-            Title:           "Bad Provider Job",
-            Description:     null,
-            WorkflowId:      "planning",
+            Title: "Bad Provider Job",
+            Description: null,
+            WorkflowId: "planning",
             WorkflowVersion: null,
-            ProviderId:      "nonexistent-provider",
-            Model:           null,
-            WorkspacePath:   null,
-            Parameters:      null);
+            ProviderId: "nonexistent-provider",
+            Model: null,
+            WorkspacePath: null,
+            Parameters: null);
 
         var response = await PostJsonAsync("/api/v1/jobs", request);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
