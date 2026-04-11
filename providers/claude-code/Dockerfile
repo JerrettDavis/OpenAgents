@@ -57,7 +57,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 #
 # The ARG defaults to the v1 major range so the image continues to build
 # out of the box; override it in CI to lock to a specific patch release.
-ARG CLAUDE_CODE_VERSION=1
+ARG CLAUDE_CODE_VERSION=2.1.101
 RUN npm install -g @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION} \
     && claude --version
 
@@ -76,7 +76,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
 # Runtime env (values without defaults MUST be supplied by the orchestrator)
 # ANTHROPIC_API_KEY  – required; no default; injected at runtime only
 ENV PROVIDER_ID=claude-code \
-    PROVIDER_VERSION=1.0.0 \
+    PROVIDER_VERSION=2.1.101 \
     PRIMARY_MODEL=claude-opus-4-5 \
     WORKSPACE_PATH=/workspace/project \
     MAILBOX_PATH=/workspace/project/.mailbox \

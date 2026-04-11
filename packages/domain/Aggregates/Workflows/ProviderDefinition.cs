@@ -13,9 +13,9 @@ public record ProviderDefinitionId(Guid Value)
 
 /// <summary>
 /// Represents a registered agent provider (e.g. Claude Code).
-/// In v1, only claude-code is supported. Provider definitions are seeded
-/// at startup and used to validate job creation requests and supply the
-/// Docker image reference for container launches.
+/// Provider definitions are seeded from provider manifests at startup and used
+/// to validate job creation requests and supply the Docker image reference for
+/// container launches.
 /// </summary>
 public class ProviderDefinition : AggregateRoot<ProviderDefinitionId>
 {
@@ -73,6 +73,10 @@ public class ProviderDefinition : AggregateRoot<ProviderDefinitionId>
     public static class KnownIds
     {
         public const string ClaudeCode = "claude-code";
+        public const string OpenCode = "opencode";
+        public const string Codex = "codex";
+        public const string Gemini = "gemini";
+        public const string Copilot = "copilot";
     }
 
     public void UpdateMetadata(

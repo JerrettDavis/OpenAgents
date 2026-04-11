@@ -267,6 +267,7 @@ public static class JobEndpoints
         IJobEventRepository eventRepo,
         JobEventService eventService,
         OrchestratorDbContext db,
+        IWorkflowManifestCatalog workflowCatalog,
         CancellationToken ct)
     {
         // Resolve workflow — accept UUID or slug
@@ -291,6 +292,19 @@ public static class JobEndpoints
 
         if (provider is null)
             return ApiErr(400, "BAD_REQUEST", $"Provider '{request.ProviderId}' not found or disabled");
+
+        var workflowManifest = workflowCatalog.GetBySlug(workflow.Slug);
+        if (workflowManifest is not null &&
+            workflowManifest.ProviderCompatibility.Count > 0 &&
+            !workflowManifest.ProviderCompatibility.Any(pc =>
+                string.Equals(pc.ProviderId, provider.ProviderId, StringComparison.OrdinalIgnoreCase) &&
+                pc.SupportLevel != ProviderSupportLevel.Unsupported))
+        {
+            return ApiErr(
+                400,
+                "BAD_REQUEST",
+                $"Provider '{provider.ProviderId}' is not compatible with workflow '{workflow.Slug}'");
+        }
 
         var job = Job.Create(
             title:                request.Title,

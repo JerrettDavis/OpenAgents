@@ -5,8 +5,20 @@ This guide walks you through running OpenAgents and launching your first agent j
 ## 1) Start the stack
 
 ```bash
+bash scripts/build-images.sh
 docker compose up -d --build
 ```
+
+On Windows, use `pwsh scripts/first-run.ps1` instead to populate `.env`, build the provider images, and start the stack.
+
+### Provider credentials
+
+Set the auth environment variable for each provider you plan to run:
+
+- `ANTHROPIC_API_KEY` - Claude Code
+- `OPENAI_API_KEY` - Codex (and optionally OpenCode)
+- `GEMINI_API_KEY` - Gemini (and optionally OpenCode)
+- `GH_TOKEN` or `GITHUB_TOKEN` - Copilot (and optionally OpenCode)
 
 Open:
 
@@ -21,7 +33,7 @@ Open:
    - **Title**: a short run name
    - **Prompt / Request**: what the agent should do
    - **Workflow**: usually `planning`
-   - **Provider**: usually `claude-code`
+   - **Provider**: one of `claude-code`, `opencode`, `codex`, `gemini`, or `copilot`
    - **Workspace path**: local path for artifacts
 4. Click **Create Job**.
 
@@ -61,8 +73,10 @@ Open job detail and use tabs:
 ```bash
 pnpm format:check
 dotnet test apps/orchestrator-api/OpenAgents.OrchestratorApi.csproj -v minimal
+pnpm test:coverage:api
 pnpm --filter orchestrator-web type-check
 pnpm --filter orchestrator-web build
 pnpm --filter orchestrator-web e2e
 pnpm validate:compose
+pnpm docs:build
 ```

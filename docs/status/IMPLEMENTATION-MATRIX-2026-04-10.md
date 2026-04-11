@@ -21,20 +21,20 @@ Legend: ✅ Implemented | 🟡 Partial | 🚧 Stubbed | ❌ Missing
 | Runtime   | Docker execution                    |     🟡 | `DockerCliRuntime.cs` abstraction in place                             | No robust retry/backoff/telemetry envelopes             | Add retry policy + richer failure envelopes        |
 | Runtime   | Local simulation mode               |     ✅ | `LocalSimRuntime.cs`                                                   | Sim path may diverge from real provider behavior        | Expand parity checks in tests                      |
 | Workflows | Planning workflow definition        |     🟡 | `workflows/planning/workflow.yaml`                                     | Workflow engine not executing full stage/task semantics | Wire engine to persisted stages/tasks              |
-| Providers | Claude Code provider image/scripts  |     🟡 | `providers/claude-code/*`                                              | Single provider only                                    | Add second provider adapter + compatibility tests  |
+| Providers | Required headless provider packs    |     ✅ | `providers/*`, manifest catalogs, provider-matrix tests                | Interactive mode remains explicitly deferred            | Add optional interactive-provider validation pass  |
 | Web       | Jobs list/detail/create/actions     |     ✅ | `app/jobs/*`, `components/jobs/*`                                      | API contract drift risks with future domain changes     | Add contract tests between web/api                 |
 | Web       | Live log/event updates              |     ✅ | `use-job-sse`, logs/events panels                                      | Event parsing assumptions may be brittle                | Normalize SSE event schema                         |
 | Web       | Workflows page                      |     ✅ | `components/workflows/workflows-view.tsx` live view                    | Management actions are still read-only                  | Add workflow create/update flows                   |
 | Web       | Agents page                         |     ✅ | `components/agents/agents-view.tsx` live view                          | Advanced health/actions not yet implemented             | Add deeper runtime health/actions                  |
 | Web       | Artifacts page                      |     ✅ | `components/artifacts/artifacts-view.tsx` + `/jobs/{id}/artifacts` API | Read-only listing only                                  | Add artifact download/open actions                 |
 | Web       | Settings page                       |     ✅ | `components/settings/settings-view.tsx` live provider/system view      | No edit flows yet                                       | Add secure config edit flows                       |
-| QA        | API tests                           |     ✅ | 55 passing tests                                                       | Coverage mostly API/domain                              | Keep expanding transition/edge-case coverage       |
-| QA        | Web tests                           |     ✅ | Playwright E2E (`full-workflow.spec.ts`) with screenshots              | Coverage currently smoke-level                          | Add more scenario coverage and component tests     |
+| QA        | API tests                           |     ✅ | 64 passing tests                                                       | Docker runtime warnings still present                   | Keep hardening runtime diagnostics                 |
+| QA        | Web tests                           |     ✅ | Playwright E2E incl. provider matrix validation                        | Manual Docker-backed provider smoke tests still useful  | Add per-provider container smoke tests over time   |
 | Docs      | Architecture/spec corpus            |     ✅ | `docs/plans/*` extensive specs                                         | Plan docs ahead of implementation reality               | Add status docs and keep synced                    |
 
 ## Highest-Impact Gaps
 
 1. **Initial commit history is too broad for ideal review/push hygiene.**
 2. **Workspace/domain hardening is still partial (validation/git lifecycle).**
-3. **Formatting gate fails (`pnpm format:check`) and blocks go-live.**
+3. **Interactive-provider mode is documented as deferred rather than implemented.**
 4. **Workflow/provider management is still mostly seed-based/read-only.**

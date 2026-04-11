@@ -24,6 +24,8 @@ builder.Services.Configure<OrchestratorOptions>(
 
 builder.Services.AddSingleton(sp =>
     sp.GetRequiredService<IOptions<OrchestratorOptions>>().Value);
+builder.Services.AddSingleton<IProviderManifestCatalog, FileSystemProviderManifestCatalog>();
+builder.Services.AddSingleton<IWorkflowManifestCatalog, FileSystemWorkflowManifestCatalog>();
 
 // ──────────────────────────────────────────────────────────────
 // Persistence — EF Core + SQLite
@@ -111,12 +113,14 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<OrchestratorDbContext>();
+    var workflowCatalog = scope.ServiceProvider.GetRequiredService<IWorkflowManifestCatalog>();
+    var providerCatalog = scope.ServiceProvider.GetRequiredService<IProviderManifestCatalog>();
 
     // EnsureCreated creates the schema from the model without running migrations.
     // Switch to db.Database.MigrateAsync() when migrations are introduced (post-v1).
     await db.Database.EnsureCreatedAsync();
 
-    await SeedData.SeedAsync(db);
+    await SeedData.SeedAsync(db, workflowCatalog, providerCatalog);
 }
 
 // ──────────────────────────────────────────────────────────────

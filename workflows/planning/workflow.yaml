@@ -15,6 +15,14 @@ workflow:
     providers:
       - id: claude-code
         support: first_class
+      - id: opencode
+        support: supported
+      - id: codex
+        support: supported
+      - id: gemini
+        support: supported
+      - id: copilot
+        support: supported
 
   # ── Prompt templates ─────────────────────────────────────────────────────
   prompts:

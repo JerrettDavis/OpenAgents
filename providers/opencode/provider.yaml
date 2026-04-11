@@ -1,0 +1,50 @@
+provider:
+  id: opencode
+  name: OpenCode
+  version: "1.4.3"
+  support_level: supported
+  description: >
+    Adapter for the OpenCode CLI. Runs `opencode run` in non-interactive mode
+    with JSON event output for OpenAgents orchestration.
+
+  image:
+    ref: openagents/provider-opencode:latest
+    base: base-agent
+
+  capabilities:
+    supports_task_loop: true
+    supports_structured_logs: true
+    supports_token_metrics: false
+    supports_cache_metrics: false
+    supports_dynamic_model_switching: true
+    supports_mailbox_notifications: false
+    supports_subagents: false
+    supports_agent_dashboard: false
+
+  auth:
+    strategy: env_any
+    required_any_env:
+      - OPENAI_API_KEY
+      - ANTHROPIC_API_KEY
+      - GEMINI_API_KEY
+      - GH_TOKEN
+      - GITHUB_TOKEN
+    passthrough_env:
+      - OPENAI_API_KEY
+      - ANTHROPIC_API_KEY
+      - GEMINI_API_KEY
+      - GH_TOKEN
+      - GITHUB_TOKEN
+
+  launch:
+    entrypoint: /usr/local/bin/entrypoint.sh
+    default_args:
+      - "run"
+      - "--format"
+      - "json"
+
+  parsing:
+    log_format: json
+
+  metrics:
+    extraction_strategy: none

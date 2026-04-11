@@ -4,7 +4,7 @@
 #
 # Builds the OpenAgents agent Docker images in the correct dependency order:
 #   1. openagents/base-agent:latest       (images/base-agent/)
-#   2. openagents/provider-claude-code:latest  (providers/claude-code/)
+#   2. Provider images under providers/*
 #
 # Usage:
 #   bash scripts/build-images.sh [--no-cache] [--push <registry>]
@@ -60,14 +60,19 @@ echo "OpenAgents Image Builder"
 echo "Repository root: $REPO_ROOT"
 
 build_image "openagents/base-agent:latest" "$REPO_ROOT/images/base-agent"
-build_image "openagents/provider-claude-code:latest" "$REPO_ROOT/providers/claude-code"
+
+for provider in claude-code opencode codex gemini copilot; do
+    build_image "openagents/provider-$provider:latest" "$REPO_ROOT/providers/$provider"
+done
 
 # ── Optional push ─────────────────────────────────────────────────────────────
 if [ -n "$PUSH_REGISTRY" ]; then
     echo ""
     echo "Pushing images to $PUSH_REGISTRY..."
-    push_image "openagents/base-agent:latest"              "$PUSH_REGISTRY"
-    push_image "openagents/provider-claude-code:latest"    "$PUSH_REGISTRY"
+    push_image "openagents/base-agent:latest" "$PUSH_REGISTRY"
+    for provider in claude-code opencode codex gemini copilot; do
+        push_image "openagents/provider-$provider:latest" "$PUSH_REGISTRY"
+    done
 fi
 
 echo ""
@@ -75,7 +80,9 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo "  All images built successfully."
 echo ""
 echo "  openagents/base-agent:latest"
-echo "  openagents/provider-claude-code:latest"
+for provider in claude-code opencode codex gemini copilot; do
+    echo "  openagents/provider-$provider:latest"
+done
 echo ""
 echo "  Next: docker compose up -d"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

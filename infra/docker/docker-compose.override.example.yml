@@ -7,8 +7,7 @@
 #
 # Common use-cases:
 #   • Bind-mount workspaces to a local directory for easy inspection
-#   • Inject ANTHROPIC_API_KEY without storing it in source control
-#   • Mount the Postgres init.sql automatically
+#   • Inject provider credentials without storing them in source control
 #   • Override image tags during local image development
 #
 # Usage:
@@ -22,13 +21,21 @@ services:
   # ── Orchestrator API overrides ──────────────────────────────────────────────
   orchestrator-api:
     environment:
-      # Anthropic API key — required for Claude Code jobs.
-      # Set in your shell: export ANTHROPIC_API_KEY=sk-ant-...
+      # Provider credentials. Set only the providers you plan to run.
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GH_TOKEN=${GH_TOKEN}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
 
-      # Provider image tag used when spinning up agent containers.
-      # Matches the tag produced by scripts/build-images.sh.
-      - OpenAgents__Providers__ClaudeCode__ImageRef=openagents/provider-claude-code:latest
+      # Provider image tags used when spinning up agent containers.
+      # Match the tags produced by scripts/build-images.sh.
+      - CLAUDE_CODE_IMAGE_REF=openagents/provider-claude-code:latest
+      - OPENCODE_IMAGE_REF=openagents/provider-opencode:latest
+      - CODEX_IMAGE_REF=openagents/provider-codex:latest
+      - GEMINI_IMAGE_REF=openagents/provider-gemini:latest
+      - COPILOT_IMAGE_REF=openagents/provider-copilot:latest
+      - OpenAgents__Docker__SharedWorkspaceVolumeName=
 
       # Uncomment to enable the Swagger / OpenAPI UI at /openapi/v1.json.
       # The main compose file uses Production to suppress it by default.
@@ -39,12 +46,6 @@ services:
       - type: bind
         source: ./local-workspaces
         target: /workspaces
-
-  # ── Postgres: load init.sql on first start ──────────────────────────────────
-  postgres:
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-      - ./infra/docker/postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
 
 # Make sure the local workspace directory exists on the host.
 # Run: mkdir -p local-workspaces

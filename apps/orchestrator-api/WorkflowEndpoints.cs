@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OpenAgents.OrchestratorApi.Data;
+using OpenAgents.OrchestratorApi.Infrastructure;
 
 namespace OpenAgents.OrchestratorApi.Endpoints;
 
@@ -59,6 +60,7 @@ public static class WorkflowEndpoints
 
     private static async Task<IResult> ListWorkflowsAsync(
         OrchestratorDbContext db,
+        IWorkflowManifestCatalog workflowCatalog,
         [FromQuery(Name = "include_disabled")] bool? includeDisabled,
         CancellationToken ct)
     {
@@ -68,12 +70,17 @@ public static class WorkflowEndpoints
 
         var workflows = await query.OrderBy(w => w.Name).ToListAsync(ct);
 
-        return Results.Ok(new { Items = workflows.Select(ToDto) });
+        return Results.Ok(new
+        {
+            Items = workflows.Select(workflow =>
+                ToDto(workflow, workflowCatalog.GetBySlug(workflow.Slug)))
+        });
     }
 
     private static async Task<IResult> GetWorkflowAsync(
         [FromRoute] string idOrSlug,
         OrchestratorDbContext db,
+        IWorkflowManifestCatalog workflowCatalog,
         CancellationToken ct)
     {
         var workflow = await FindWorkflowAsync(idOrSlug, db, ct);
@@ -90,7 +97,7 @@ public static class WorkflowEndpoints
                     }
                 },
                 statusCode: 404)
-            : Results.Ok(new { Workflow = ToDto(workflow) });
+            : Results.Ok(new { Workflow = ToDto(workflow, workflowCatalog.GetBySlug(workflow.Slug)) });
     }
 
     private static async Task<IResult> CreateWorkflowAsync(
@@ -122,7 +129,7 @@ public static class WorkflowEndpoints
         db.WorkflowDefinitions.Add(workflow);
         await db.SaveChangesAsync(ct);
 
-        return Results.Created($"/api/v1/workflows/{workflow.Slug}", new { Workflow = ToDto(workflow) });
+        return Results.Created($"/api/v1/workflows/{workflow.Slug}", new { Workflow = ToDto(workflow, null) });
     }
 
     private static async Task<IResult> UpdateWorkflowAsync(
@@ -157,7 +164,7 @@ public static class WorkflowEndpoints
 
         await db.SaveChangesAsync(ct);
 
-        return Results.Ok(new { Workflow = ToDto(workflow) });
+        return Results.Ok(new { Workflow = ToDto(workflow, null) });
     }
 
     private static async Task<Domain.Aggregates.Workflows.WorkflowDefinition?> FindWorkflowAsync(
@@ -175,7 +182,9 @@ public static class WorkflowEndpoints
         new { error = new { code = "BAD_REQUEST", message, detail = (string?)null } },
         statusCode: 400);
 
-    private static WorkflowDto ToDto(Domain.Aggregates.Workflows.WorkflowDefinition w) => new(
+    private static WorkflowDto ToDto(
+        Domain.Aggregates.Workflows.WorkflowDefinition w,
+        WorkflowManifest? manifest) => new(
         Id: w.Id.Value,
         Slug: w.Slug,
         Name: w.Name,
@@ -184,5 +193,7 @@ public static class WorkflowEndpoints
         Category: w.Category ?? "general",
         IsEnabled: w.IsEnabled,
         IsExperimental: w.IsExperimental,
-        ProviderCompatibility: []);
+        ProviderCompatibility: manifest?.ProviderCompatibility
+            .Select(pc => new ProviderCompatibilityDto(pc.ProviderId, pc.SupportLevel.ToString()))
+            .ToArray() ?? []);
 }

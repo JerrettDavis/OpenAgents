@@ -1,0 +1,46 @@
+provider:
+  id: copilot
+  name: Copilot
+  version: "1.0.24"
+  support_level: supported
+  description: >
+    Adapter for GitHub Copilot CLI. Runs `copilot -p` in non-interactive mode
+    with JSON output for OpenAgents orchestration.
+
+  image:
+    ref: openagents/provider-copilot:latest
+    base: base-agent
+
+  capabilities:
+    supports_task_loop: true
+    supports_structured_logs: true
+    supports_token_metrics: false
+    supports_cache_metrics: false
+    supports_dynamic_model_switching: true
+    supports_mailbox_notifications: false
+    supports_subagents: false
+    supports_agent_dashboard: false
+
+  auth:
+    strategy: env_any
+    required_any_env:
+      - GH_TOKEN
+      - GITHUB_TOKEN
+    passthrough_env:
+      - GH_TOKEN
+      - GITHUB_TOKEN
+
+  launch:
+    entrypoint: /usr/local/bin/entrypoint.sh
+    default_args:
+      - "-p"
+      - "<task>"
+      - "--allow-all"
+      - "--output-format"
+      - "json"
+
+  parsing:
+    log_format: json
+
+  metrics:
+    extraction_strategy: none

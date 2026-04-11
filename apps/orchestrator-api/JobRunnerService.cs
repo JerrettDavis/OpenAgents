@@ -31,6 +31,7 @@ public sealed class JobRunnerService : BackgroundService
 
     private readonly IServiceScopeFactory  _scopeFactory;
     private readonly IContainerRuntime     _containerRuntime;
+    private readonly IProviderManifestCatalog _providerCatalog;
     private readonly OrchestratorOptions   _options;
     private readonly ILogger<JobRunnerService> _logger;
 
@@ -40,11 +41,13 @@ public sealed class JobRunnerService : BackgroundService
     public JobRunnerService(
         IServiceScopeFactory scopeFactory,
         IContainerRuntime containerRuntime,
+        IProviderManifestCatalog providerCatalog,
         IOptions<OrchestratorOptions> options,
         ILogger<JobRunnerService> logger)
     {
         _scopeFactory     = scopeFactory;
         _containerRuntime = containerRuntime;
+        _providerCatalog  = providerCatalog;
         _options          = options.Value;
         _logger           = logger;
     }
@@ -134,11 +137,19 @@ public sealed class JobRunnerService : BackgroundService
                 .Where(p => p.ProviderId == job.PrimaryProviderId)
                 .Select(p => p.DockerImage)
                 .FirstOrDefaultAsync(ct);
+            var providerManifest = _providerCatalog.GetById(job.PrimaryProviderId);
 
             if (providerImage is null)
             {
                 await FailJobAsync(job, jobRepo, eventService,
                     $"Provider '{job.PrimaryProviderId}' not found", ct);
+                return;
+            }
+
+            if (!_options.UseLocalSimRuntime &&
+                TryGetMissingCredentialMessage(providerManifest, out var missingCredentialMessage))
+            {
+                await FailJobAsync(job, jobRepo, eventService, missingCredentialMessage, ct);
                 return;
             }
 
@@ -157,14 +168,22 @@ public sealed class JobRunnerService : BackgroundService
 
             // ── Launch container ───────────────────────────────
             var containerName = $"openagents-job-{jobId:N}";
-            var envVars = BuildEnvironmentVariables(job);
+            var sharedWorkspaceVolumeName = ResolveSharedWorkspaceVolumeName();
+            var workspacePathOverride = sharedWorkspaceVolumeName is null
+                ? null
+                : $"{_options.Storage.WorkspaceBasePath.TrimEnd('/')}/{job.Id.Value:N}";
+            var envVars = ProviderLaunchEnvironmentBuilder.Build(job, providerManifest, workspacePathOverride);
 
             var containerRequest = new ContainerStartRequest(
                 Image:                   providerImage,
                 ContainerName:           containerName,
                 WorkspaceHostPath:       workspacePath,
-                WorkspaceContainerPath:  $"/workspace/{SanitiseName(job.Title)}",
-                EnvironmentVariables:    envVars);
+                WorkspaceContainerPath:  envVars["WORKSPACE_PATH"],
+                EnvironmentVariables:    envVars,
+                SharedWorkspaceVolumeName: sharedWorkspaceVolumeName,
+                SharedWorkspaceVolumeMountPath: sharedWorkspaceVolumeName is null
+                    ? null
+                    : _options.Storage.WorkspaceBasePath);
 
             string containerId;
             try
@@ -373,51 +392,42 @@ public sealed class JobRunnerService : BackgroundService
     private string BuildWorkspacePath(Guid jobId)
         => Path.GetFullPath(Path.Combine(_options.Storage.WorkspaceBasePath, jobId.ToString("N")));
 
-    private static IReadOnlyDictionary<string, string> BuildEnvironmentVariables(
-        Domain.Aggregates.Jobs.Job job)
+    private string? ResolveSharedWorkspaceVolumeName()
+        => _options.UseLocalSimRuntime || string.IsNullOrWhiteSpace(_options.Docker.SharedWorkspaceVolumeName)
+            ? null
+            : _options.Docker.SharedWorkspaceVolumeName.Trim();
+
+    private static bool TryGetMissingCredentialMessage(
+        ProviderManifest? providerManifest,
+        out string message)
     {
-        var vars = new Dictionary<string, string>
+        message = string.Empty;
+        if (providerManifest is null)
+            return false;
+
+        var missingRequiredEnv = providerManifest.RequiredEnv
+            .Where(IsMissingEnvironmentVariable)
+            .ToArray();
+
+        if (missingRequiredEnv.Length > 0)
         {
-            ["JOB_ID"]              = job.Id.Value.ToString(),
-            ["WORKFLOW_ID"]         = job.WorkflowSlug,
-            ["WORKFLOW_VERSION"]    = job.WorkflowVersion,
-            ["STAGE_ID"]            = "setup",
-            ["TASK_ID"]             = "task-001",
-            ["PROVIDER_ID"]         = job.PrimaryProviderId,
-            ["PRIMARY_MODEL"]       = job.PrimaryModel ?? string.Empty,
-            ["ITERATIONS"]          = "5",
-            ["ITERATIONS__STAGE"]   = "3",
-            ["ITERATIONS__TASK"]    = "2",
-            ["WORKSPACE_PATH"]      = $"/workspace/{SanitiseName(job.Title)}",
-            ["MAILBOX_PATH"]        = $"/workspace/{SanitiseName(job.Title)}/.mailbox",
-        };
+            message =
+                $"Provider '{providerManifest.Id}' is missing required environment variables: {string.Join(", ", missingRequiredEnv)}";
+            return true;
+        }
 
-        // Forward the Anthropic API key from the orchestrator's own process environment
-        // into the agent container. The key is set on the orchestrator via the compose
-        // env / .env file and must never be hard-coded.
-        // DockerCliRuntime redacts this key in its log output so the value never appears
-        // in structured logs.
-        var anthropicKey = Environment.GetEnvironmentVariable("ANTHROPIC_API_KEY");
-        if (!string.IsNullOrEmpty(anthropicKey))
-            vars["ANTHROPIC_API_KEY"] = anthropicKey;
+        if (providerManifest.RequiredAnyEnv.Count > 0 &&
+            !providerManifest.RequiredAnyEnv.Any(static envVarName => !IsMissingEnvironmentVariable(envVarName)))
+        {
+            message =
+                $"Provider '{providerManifest.Id}' requires at least one of these environment variables: {string.Join(", ", providerManifest.RequiredAnyEnv)}";
+            return true;
+        }
 
-        return vars;
+        return false;
     }
 
-    /// <summary>Make a job title safe for use as a directory/container name component.</summary>
-    private static string SanitiseName(string title)
-    {
-        // 1. Replace all non-alphanumeric characters with hyphens
-        // 2. Trim leading/trailing hyphens from the result
-        // 3. Truncate to 50 characters
-        // BUG FIX: previously called Trim() on `safe` but measured length from TrimStart(),
-        // which could produce an out-of-range slice when trailing hyphens made the trimmed
-        // string shorter than the TrimStart length.
-        var safe = new string(title
-            .ToLowerInvariant()
-            .Select(c => char.IsLetterOrDigit(c) ? c : '-')
-            .ToArray())
-            .Trim('-');
-        return safe[..Math.Min(50, safe.Length)];
-    }
+    private static bool IsMissingEnvironmentVariable(string envVarName)
+        => string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(envVarName));
+
 }

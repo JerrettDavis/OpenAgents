@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using OpenAgents.Domain.Aggregates.Workflows;
 using OpenAgents.Domain.Enums;
+using OpenAgents.OrchestratorApi.Infrastructure;
 
 namespace OpenAgents.OrchestratorApi.Data;
 
@@ -10,32 +11,49 @@ namespace OpenAgents.OrchestratorApi.Data;
 /// </summary>
 public static class SeedData
 {
-    public static async Task SeedAsync(OrchestratorDbContext db, CancellationToken ct = default)
+    public static async Task SeedAsync(
+        OrchestratorDbContext db,
+        IWorkflowManifestCatalog workflowCatalog,
+        IProviderManifestCatalog providerCatalog,
+        CancellationToken ct = default)
     {
-        await SeedWorkflowsAsync(db, ct);
-        await SeedProvidersAsync(db, ct);
+        await SeedWorkflowsAsync(db, workflowCatalog, ct);
+        await SeedProvidersAsync(db, providerCatalog, ct);
     }
 
     // ──────────────────────────────────────────────────────────
     // Workflows
     // ──────────────────────────────────────────────────────────
 
-    private static async Task SeedWorkflowsAsync(OrchestratorDbContext db, CancellationToken ct)
+    private static async Task SeedWorkflowsAsync(
+        OrchestratorDbContext db,
+        IWorkflowManifestCatalog workflowCatalog,
+        CancellationToken ct)
     {
-        if (await db.WorkflowDefinitions.AnyAsync(cancellationToken: ct))
-            return;
-
-        var workflows = new[]
+        foreach (var manifest in workflowCatalog.GetAll())
         {
-            WorkflowDefinition.Create(
-                name: "Planning",
-                slug: "planning",
-                version: "1.0.0",
-                description: "Standard planning workflow — the agent analyses the workspace, " +
-                             "writes a TODO.md, and produces a structured implementation plan."),
-        };
+            var existing = await db.WorkflowDefinitions
+                .FirstOrDefaultAsync(w => w.Slug == manifest.Slug, ct);
 
-        db.WorkflowDefinitions.AddRange(workflows);
+            if (existing is null)
+            {
+                db.WorkflowDefinitions.Add(WorkflowDefinition.Create(
+                    name: manifest.Name,
+                    slug: manifest.Slug,
+                    version: manifest.Version,
+                    description: manifest.Description,
+                    category: manifest.Category));
+                continue;
+            }
+
+            existing.UpdateMetadata(
+                name: manifest.Name,
+                version: manifest.Version,
+                description: manifest.Description,
+                category: manifest.Category,
+                isExperimental: existing.IsExperimental);
+        }
+
         await db.SaveChangesAsync(ct);
     }
 
@@ -43,25 +61,36 @@ public static class SeedData
     // Providers
     // ──────────────────────────────────────────────────────────
 
-    private static async Task SeedProvidersAsync(OrchestratorDbContext db, CancellationToken ct)
+    private static async Task SeedProvidersAsync(
+        OrchestratorDbContext db,
+        IProviderManifestCatalog providerCatalog,
+        CancellationToken ct)
     {
-        if (await db.ProviderDefinitions.AnyAsync(cancellationToken: ct))
-            return;
-
-        var providers = new[]
+        foreach (var manifest in providerCatalog.GetAll())
         {
-            ProviderDefinition.Create(
-                providerId: ProviderDefinition.KnownIds.ClaudeCode,
-                name: "Claude Code",
-                version: "1.0.0",
-                // Image built from providers/claude-code/Dockerfile
-                dockerImage: "openagents/claude-code:latest",
-                description: "Anthropic Claude Code CLI agent. Requires ANTHROPIC_API_KEY " +
-                             "set in the environment.",
-                supportLevel: ProviderSupportLevel.FirstClass),
-        };
+            var existing = await db.ProviderDefinitions
+                .FirstOrDefaultAsync(p => p.ProviderId == manifest.Id, ct);
 
-        db.ProviderDefinitions.AddRange(providers);
+            if (existing is null)
+            {
+                db.ProviderDefinitions.Add(ProviderDefinition.Create(
+                    providerId: manifest.Id,
+                    name: manifest.Name,
+                    version: manifest.Version,
+                    dockerImage: manifest.ImageRef,
+                    description: manifest.Description,
+                    supportLevel: manifest.SupportLevel));
+                continue;
+            }
+
+            existing.UpdateMetadata(
+                name: manifest.Name,
+                version: manifest.Version,
+                dockerImage: manifest.ImageRef,
+                description: manifest.Description,
+                supportLevel: manifest.SupportLevel);
+        }
+
         await db.SaveChangesAsync(ct);
     }
 }

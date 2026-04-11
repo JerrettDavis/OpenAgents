@@ -37,6 +37,8 @@ RUN useradd --system --user-group --shell /usr/sbin/nologin appuser \
 USER appuser
 
 COPY --from=build /app/publish ./
+COPY workflows/ /workflows/
+COPY providers/ /providers/
 
 # /data is the default volume for the SQLite database (production)
 VOLUME /data

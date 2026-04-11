@@ -3,7 +3,8 @@
     {
       "src": [
         {
-          "files": ["../apps/orchestrator-api/**/*.csproj", "../packages/domain/**/*.csproj"],
+          "src": "..",
+          "files": ["apps/orchestrator-api/**/*.csproj", "packages/domain/**/*.csproj"],
           "exclude": ["**/bin/**", "**/obj/**"]
         }
       ],

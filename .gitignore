@@ -239,6 +239,11 @@ data/local/
 # Generated reports and artifacts during job execution
 artifacts/
 reports/
+docs/_site/
+docs/api/.manifest
+docs/api/*.yml
+docs/api/toc.yml
+.playwright-mcp/
 
 # Agent outputs
 agent-output/

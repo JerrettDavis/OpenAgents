@@ -14,10 +14,19 @@ services:
       - ASPNETCORE_URLS=http://+:8080
       - ConnectionStrings__OpenAgents=${DB_CONNECTION_STRING:-Data Source=/data/openagents.db}
       - OpenAgents__Docker__SocketPath=/var/run/docker.sock
+      - OpenAgents__Docker__SharedWorkspaceVolumeName=openagents_workspaces
       - OpenAgents__Storage__WorkspaceBasePath=/workspaces
       - OpenAgents__Storage__ArtifactsBasePath=/artifacts
-      - OpenAgents__Providers__ClaudeCode__ImageRef=${CLAUDE_CODE_IMAGE_REF:-openagents/provider-claude-code:latest}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - GH_TOKEN=${GH_TOKEN:-}
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      - CLAUDE_CODE_IMAGE_REF=${CLAUDE_CODE_IMAGE_REF:-openagents/provider-claude-code:latest}
+      - OPENCODE_IMAGE_REF=${OPENCODE_IMAGE_REF:-openagents/provider-opencode:latest}
+      - CODEX_IMAGE_REF=${CODEX_IMAGE_REF:-openagents/provider-codex:latest}
+      - GEMINI_IMAGE_REF=${GEMINI_IMAGE_REF:-openagents/provider-gemini:latest}
+      - COPILOT_IMAGE_REF=${COPILOT_IMAGE_REF:-openagents/provider-copilot:latest}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - workspaces:/workspaces
@@ -55,4 +64,5 @@ volumes:
 
 networks:
   openagents-net:
+    name: openagents-net
     driver: bridge

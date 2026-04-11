@@ -6,10 +6,10 @@
 # Performs:
 #   1. Checks Docker is running
 #   2. Creates .env from .env.example (if not already present)
-#   3. Prompts for ANTHROPIC_API_KEY and writes it to .env
+#   3. Prompts for provider credentials and writes them to .env
 #   4. Creates local-workspaces directory
 #   5. Copies the compose override example (if not present)
-#   6. Builds agent Docker images (base-agent + claude-code provider)
+#   6. Builds agent Docker images (base-agent + all bundled providers)
 #   7. Starts the stack with docker compose up -d
 #   8. Waits for the API health check to pass
 #
@@ -42,6 +42,30 @@ function Write-Warn([string]$message) {
     Write-Host "  ⚠ $message" -ForegroundColor Yellow
 }
 
+function Ensure-EnvVar([string]$envFilePath, [string]$name, [string]$prompt, [string]$warnMessage) {
+    $content = Get-Content $envFilePath -Raw
+    if ($content -match "(?m)^$name=.+$") {
+        Write-Ok "$name already configured in .env"
+        return
+    }
+
+    Write-Host ""
+    $value = Read-Host "  $prompt"
+    if ($value -eq "") {
+        Write-Warn $warnMessage
+        return
+    }
+
+    if ($content -match "(?m)^$name=.*$") {
+        $content = [regex]::Replace($content, "(?m)^$name=.*$", "$name=$value")
+    } else {
+        $content = $content.TrimEnd() + "`n$name=$value`n"
+    }
+
+    Set-Content $envFilePath $content -NoNewline
+    Write-Ok "$name written to .env"
+}
+
 Write-Host ""
 Write-Host "  OpenAgents – First Run Setup" -ForegroundColor White
 Write-Host "  Repository: $RepoRoot" -ForegroundColor Gray
@@ -71,28 +95,11 @@ if (-not (Test-Path $envFile)) {
     Write-Ok ".env already exists"
 }
 
-# ── 3. Prompt for ANTHROPIC_API_KEY ──────────────────────────────────────────
-$currentContent = Get-Content $envFile -Raw
-if ($currentContent -notmatch 'ANTHROPIC_API_KEY=sk-ant-') {
-    Write-Host ""
-    Write-Host "  Claude Code requires an Anthropic API key." -ForegroundColor Yellow
-    Write-Host "  Get one at: https://console.anthropic.com" -ForegroundColor Gray
-    Write-Host ""
-    $apiKey = Read-Host "  Enter your ANTHROPIC_API_KEY (or press Enter to skip)"
-    if ($apiKey -ne "") {
-        if ($currentContent -match 'ANTHROPIC_API_KEY=') {
-            $newContent = $currentContent -replace 'ANTHROPIC_API_KEY=.*', "ANTHROPIC_API_KEY=$apiKey"
-        } else {
-            $newContent = $currentContent.TrimEnd() + "`n`nANTHROPIC_API_KEY=$apiKey`n"
-        }
-        Set-Content $envFile $newContent -NoNewline
-        Write-Ok "ANTHROPIC_API_KEY written to .env"
-    } else {
-        Write-Warn "ANTHROPIC_API_KEY not set. Claude Code jobs will fail. Edit .env manually."
-    }
-} else {
-    Write-Ok "ANTHROPIC_API_KEY already configured in .env"
-}
+# ── 3. Prompt for provider credentials ────────────────────────────────────────
+Ensure-EnvVar $envFile "ANTHROPIC_API_KEY" "Enter your ANTHROPIC_API_KEY (or press Enter to skip)" "ANTHROPIC_API_KEY not set. Claude Code jobs will fail."
+Ensure-EnvVar $envFile "OPENAI_API_KEY" "Enter your OPENAI_API_KEY (or press Enter to skip)" "OPENAI_API_KEY not set. Codex/OpenCode jobs using OpenAI will fail."
+Ensure-EnvVar $envFile "GEMINI_API_KEY" "Enter your GEMINI_API_KEY (or press Enter to skip)" "GEMINI_API_KEY not set. Gemini/OpenCode jobs using Gemini will fail."
+Ensure-EnvVar $envFile "GH_TOKEN" "Enter your GH_TOKEN (or press Enter to skip)" "GH_TOKEN not set. Copilot/OpenCode jobs using GitHub auth will fail."
 
 # ── 4. Create local-workspaces directory ─────────────────────────────────────
 Write-Step "Local workspace directory"
@@ -120,17 +127,27 @@ if (-not (Test-Path $overrideFile)) {
 # ── 6. Build agent images ─────────────────────────────────────────────────────
 if (-not $SkipBuildImages) {
     Write-Step "Building Docker images"
-    Write-Host "  This may take several minutes on first run (downloading Node.js, Claude Code CLI)..."
+    Write-Host "  This may take several minutes on first run (downloading Node.js and provider CLIs)..."
     Write-Host ""
 
-    Write-Host "  [1/2] Building openagents/base-agent:latest..."
+    Write-Host "  [1/6] Building openagents/base-agent:latest..."
     docker build -t openagents/base-agent:latest (Join-Path $RepoRoot "images\base-agent")
     Write-Ok "openagents/base-agent:latest built"
 
-    Write-Host ""
-    Write-Host "  [2/2] Building openagents/provider-claude-code:latest..."
-    docker build -t openagents/provider-claude-code:latest (Join-Path $RepoRoot "providers\claude-code")
-    Write-Ok "openagents/provider-claude-code:latest built"
+    $providerBuilds = @(
+        @{ Index = 2; Tag = 'openagents/provider-claude-code:latest'; Path = 'providers\claude-code' },
+        @{ Index = 3; Tag = 'openagents/provider-opencode:latest'; Path = 'providers\opencode' },
+        @{ Index = 4; Tag = 'openagents/provider-codex:latest'; Path = 'providers\codex' },
+        @{ Index = 5; Tag = 'openagents/provider-gemini:latest'; Path = 'providers\gemini' },
+        @{ Index = 6; Tag = 'openagents/provider-copilot:latest'; Path = 'providers\copilot' }
+    )
+
+    foreach ($providerBuild in $providerBuilds) {
+        Write-Host ""
+        Write-Host "  [$($providerBuild.Index)/6] Building $($providerBuild.Tag)..."
+        docker build -t $providerBuild.Tag (Join-Path $RepoRoot $providerBuild.Path)
+        Write-Ok "$($providerBuild.Tag) built"
+    }
 } else {
     Write-Warn "Skipping image build (--SkipBuildImages)"
 }
@@ -172,7 +189,7 @@ Write-Host "──────────────────────�
 Write-Host "  OpenAgents is ready!" -ForegroundColor Green
 Write-Host ""
 Write-Host "  API:       http://localhost:8080" -ForegroundColor White
-Write-Host "  Dashboard: http://localhost:3000" -ForegroundColor White
+Write-Host "  Dashboard: http://localhost:3001" -ForegroundColor White
 Write-Host "  Health:    http://localhost:8080/healthz" -ForegroundColor White
 Write-Host ""
 Write-Host "  Logs:      docker compose logs -f" -ForegroundColor Gray

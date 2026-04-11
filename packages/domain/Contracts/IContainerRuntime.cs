@@ -40,4 +40,6 @@ public record ContainerStartRequest(
     string ContainerName,
     string WorkspaceHostPath,
     string WorkspaceContainerPath,
-    IReadOnlyDictionary<string, string> EnvironmentVariables);
+    IReadOnlyDictionary<string, string> EnvironmentVariables,
+    string? SharedWorkspaceVolumeName = null,
+    string? SharedWorkspaceVolumeMountPath = null);

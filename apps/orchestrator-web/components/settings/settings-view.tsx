@@ -23,7 +23,7 @@ export function SettingsView() {
         name: `Provider ${ts}`,
         version: '1.0.0',
         docker_image: 'ghcr.io/example/provider:latest',
-        support_level: 'Community',
+        support_level: 'Supported',
         is_enabled: true,
       });
       await providers.refetch();

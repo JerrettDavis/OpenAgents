@@ -1,7 +1,8 @@
 provider:
   id: claude-code
   name: Claude Code
-  version: "1.0.0"
+  version: "2.1.101"
+  support_level: first_class
   description: >
     Adapter for Anthropic's Claude Code CLI. First-class v1 provider.
     Runs claude in --print --output-format stream-json mode inside the
@@ -31,6 +32,8 @@ provider:
   auth:
     strategy: env
     required_env:
+      - ANTHROPIC_API_KEY
+    passthrough_env:
       - ANTHROPIC_API_KEY
 
   # ── Launch strategy ────────────────────────────────────────────────────────

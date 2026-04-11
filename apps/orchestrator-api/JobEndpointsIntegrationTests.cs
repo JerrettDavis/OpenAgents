@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using OpenAgents.OrchestratorApi.Background;
 using OpenAgents.OrchestratorApi.Data;
 using OpenAgents.OrchestratorApi.Endpoints;
+using OpenAgents.OrchestratorApi.Infrastructure;
 
 namespace OpenAgents.OrchestratorApi.Tests;
 
@@ -38,7 +39,14 @@ public sealed class JobEndpointsIntegrationTests : IClassFixture<OrchestratorApi
     record TestJobListResponse(TestJobSummary[] Items);
     record TestJobDetailResponse(TestJobDetail Job);
     record TestJobCreateResponse(TestJobDetail Job);
-    record TestWorkflowItem(Guid Id, string Slug, string Name, string Version, bool IsEnabled);
+    record TestWorkflowCompatibility(string ProviderId, string Support);
+    record TestWorkflowItem(
+        Guid Id,
+        string Slug,
+        string Name,
+        string Version,
+        bool IsEnabled,
+        TestWorkflowCompatibility[] ProviderCompatibility);
     record TestWorkflowListResponse(TestWorkflowItem[] Items);
     record TestEventListResponse(JsonElement[] Items);
 
@@ -84,7 +92,9 @@ public sealed class JobEndpointsIntegrationTests : IClassFixture<OrchestratorApi
 
         Assert.NotNull(providers);
         Assert.NotEmpty(providers);
-        Assert.Contains(providers, p => p.ProviderId == "claude-code");
+        Assert.Equal(
+            ["claude-code", "codex", "copilot", "gemini", "opencode"],
+            providers.Select(p => p.ProviderId).OrderBy(id => id).ToArray());
     }
 
     // ──────────────────────────────────────────────────────────
@@ -99,6 +109,10 @@ public sealed class JobEndpointsIntegrationTests : IClassFixture<OrchestratorApi
         Assert.NotNull(resp);
         Assert.NotEmpty(resp.Items);
         Assert.Contains(resp.Items, w => w.Slug == "planning");
+        var planning = Assert.Single(resp.Items, w => w.Slug == "planning");
+        Assert.Equal(
+            ["claude-code", "codex", "copilot", "gemini", "opencode"],
+            planning.ProviderCompatibility.Select(pc => pc.ProviderId).OrderBy(id => id).ToArray());
     }
 
     // ──────────────────────────────────────────────────────────
@@ -146,6 +160,29 @@ public sealed class JobEndpointsIntegrationTests : IClassFixture<OrchestratorApi
 
         // Location header should point to the new job, using the API's relative URI contract
         Assert.Equal($"/api/v1/jobs/{dto.Id}", response.Headers.Location?.OriginalString);
+    }
+
+    [Theory]
+    [InlineData("claude-code")]
+    [InlineData("opencode")]
+    [InlineData("codex")]
+    [InlineData("gemini")]
+    [InlineData("copilot")]
+    public async Task Post_Jobs_PlanningWorkflow_AcceptsRequiredProviders(string providerId)
+    {
+        var request = new CreateJobRequest(
+            Title: $"Provider Matrix {providerId}",
+            Description: "Created by provider compatibility integration test",
+            WorkflowId: "planning",
+            WorkflowVersion: null,
+            ProviderId: providerId,
+            Model: null,
+            WorkspacePath: null,
+            Parameters: null);
+
+        var response = await PostJsonAsync("/api/v1/jobs", request);
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
     }
 
     [Fact]
@@ -367,7 +404,9 @@ public sealed class OrchestratorApiFactory : WebApplicationFactory<Program>
         using var scope = host.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<OrchestratorDbContext>();
         db.Database.EnsureCreated();
-        SeedData.SeedAsync(db).GetAwaiter().GetResult();
+        var workflowCatalog = host.Services.GetRequiredService<IWorkflowManifestCatalog>();
+        var providerCatalog = host.Services.GetRequiredService<IProviderManifestCatalog>();
+        SeedData.SeedAsync(db, workflowCatalog, providerCatalog).GetAwaiter().GetResult();
 
         return host;
     }

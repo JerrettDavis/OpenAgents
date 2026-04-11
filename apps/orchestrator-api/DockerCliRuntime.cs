@@ -29,7 +29,14 @@ public sealed class DockerCliRuntime : IContainerRuntime
     /// Add any new secret keys here as additional providers are onboarded.
     /// </summary>
     private static readonly HashSet<string> SecretEnvKeys =
-        new(StringComparer.OrdinalIgnoreCase) { "ANTHROPIC_API_KEY" };
+        new(StringComparer.OrdinalIgnoreCase)
+        {
+            "ANTHROPIC_API_KEY",
+            "OPENAI_API_KEY",
+            "GEMINI_API_KEY",
+            "GH_TOKEN",
+            "GITHUB_TOKEN",
+        };
 
     private readonly ILogger<DockerCliRuntime> _logger;
     private readonly OrchestratorOptions _options;
@@ -48,18 +55,29 @@ public sealed class DockerCliRuntime : IContainerRuntime
         ContainerStartRequest request,
         CancellationToken ct = default)
     {
-        // Use forward slashes for Docker volume paths even on Windows.
-        var hostPath = NormaliseDockerPath(request.WorkspaceHostPath);
-
         // Build the argument list. Using ArgumentList (not a raw string) means
         // the runtime handles quoting/escaping per-platform; no shell is involved.
         var args = new List<string>
         {
             "run", "-d",
             "--name", request.ContainerName,
-            "-v", $"{hostPath}:{request.WorkspaceContainerPath}",
             "--network", _options.Docker.DefaultNetworkName,
         };
+
+        if (!string.IsNullOrWhiteSpace(request.SharedWorkspaceVolumeName) &&
+            !string.IsNullOrWhiteSpace(request.SharedWorkspaceVolumeMountPath))
+        {
+            args.Add("--mount");
+            args.Add(
+                $"type=volume,src={request.SharedWorkspaceVolumeName},dst={request.SharedWorkspaceVolumeMountPath}");
+        }
+        else
+        {
+            // Use forward slashes for Docker volume paths even on Windows.
+            var hostPath = NormaliseDockerPath(request.WorkspaceHostPath);
+            args.Add("-v");
+            args.Add($"{hostPath}:{request.WorkspaceContainerPath}");
+        }
 
         foreach (var kv in request.EnvironmentVariables)
         {

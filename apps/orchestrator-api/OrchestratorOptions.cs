@@ -19,6 +19,13 @@ public sealed class DockerOptions
 
     /// <summary>Docker network to attach agent containers to.</summary>
     public string DefaultNetworkName { get; init; } = "openagents-net";
+
+    /// <summary>
+    /// Optional named volume shared between the orchestrator API container and spawned
+    /// provider containers. When set, provider containers mount this volume instead of
+    /// bind-mounting <see cref="StorageOptions.WorkspaceBasePath"/> from the API container.
+    /// </summary>
+    public string? SharedWorkspaceVolumeName { get; init; }
 }
 
 public sealed class StorageOptions

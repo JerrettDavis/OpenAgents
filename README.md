@@ -5,6 +5,7 @@ OpenAgents is a docker-first orchestration platform for running agent workflows 
 ## What you can do today
 
 - Configure workflows and providers from the UI
+- Run headless jobs across Claude Code, OpenCode, Codex, Gemini, and Copilot
 - Create jobs with prompt/request input
 - Start and stop runs
 - Monitor live execution (stages/tasks, timeline, logs)
@@ -15,20 +16,33 @@ OpenAgents is a docker-first orchestration platform for running agent workflows 
 
 - **API:** ASP.NET Core (.NET 10)
 - **Web:** Next.js 16 + TypeScript
-- **Data:** PostgreSQL (docker-compose)
+- **Data:** SQLite (docker-compose)
 - **Runtime:** Dockerized agents + local sim runtime
 
 ## Quick start
 
 ```bash
 pnpm install
+bash scripts/build-images.sh
 docker compose up -d --build
 ```
+
+On Windows, use `pwsh scripts/first-run.ps1` to populate `.env`, build all provider images, and start the stack.
 
 Open:
 
 - UI: `http://localhost:3001`
 - API health: `http://localhost:8080/healthz`
+
+## Supported headless providers
+
+| Provider ID   | CLI                | Auth env                                                                               |
+| ------------- | ------------------ | -------------------------------------------------------------------------------------- |
+| `claude-code` | Claude Code        | `ANTHROPIC_API_KEY`                                                                    |
+| `opencode`    | OpenCode           | `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `GH_TOKEN`, or `GITHUB_TOKEN` |
+| `codex`       | OpenAI Codex CLI   | `OPENAI_API_KEY`                                                                       |
+| `gemini`      | Google Gemini CLI  | `GEMINI_API_KEY`                                                                       |
+| `copilot`     | GitHub Copilot CLI | `GH_TOKEN` or `GITHUB_TOKEN`                                                           |
 
 ## Validate everything
 
@@ -40,6 +54,7 @@ pnpm --filter orchestrator-web type-check
 pnpm --filter orchestrator-web build
 pnpm --filter orchestrator-web e2e
 pnpm validate:compose
+pnpm docs:build
 ```
 
 ## Repository layout

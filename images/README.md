@@ -22,3 +22,11 @@ The base agent image provides:
 
 Providers (Claude Code, Codex, etc.) each supply their own image that `FROM base-agent`.
 Provider images live under `providers/<name>/`.
+
+Current provider images:
+
+- `openagents/provider-claude-code:latest`
+- `openagents/provider-opencode:latest`
+- `openagents/provider-codex:latest`
+- `openagents/provider-gemini:latest`
+- `openagents/provider-copilot:latest`

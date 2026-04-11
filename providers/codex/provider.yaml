@@ -1,0 +1,42 @@
+provider:
+  id: codex
+  name: Codex
+  version: "0.120.0"
+  support_level: supported
+  description: >
+    Adapter for the OpenAI Codex CLI. Runs `codex exec` in non-interactive mode
+    with JSONL events for OpenAgents orchestration.
+
+  image:
+    ref: openagents/provider-codex:latest
+    base: base-agent
+
+  capabilities:
+    supports_task_loop: true
+    supports_structured_logs: true
+    supports_token_metrics: false
+    supports_cache_metrics: false
+    supports_dynamic_model_switching: true
+    supports_mailbox_notifications: false
+    supports_subagents: false
+    supports_agent_dashboard: false
+
+  auth:
+    strategy: env
+    required_env:
+      - OPENAI_API_KEY
+    passthrough_env:
+      - OPENAI_API_KEY
+
+  launch:
+    entrypoint: /usr/local/bin/entrypoint.sh
+    default_args:
+      - "exec"
+      - "--json"
+      - "--full-auto"
+
+  parsing:
+    log_format: jsonl
+
+  metrics:
+    extraction_strategy: none
