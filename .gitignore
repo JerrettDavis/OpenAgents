@@ -239,6 +239,9 @@ data/local/
 
 # Generated reports and artifacts during job execution
 artifacts/
+# Exceptions for Next.js route directories
+!apps/orchestrator-web/app/**/artifacts/
+!apps/orchestrator-web/components/artifacts/
 reports/
 docs/_site/
 docs/api/.manifest
