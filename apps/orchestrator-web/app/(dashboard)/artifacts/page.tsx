@@ -1,8 +1,8 @@
-import type { Metadata } from "next";
-import { ArtifactsView } from "@/components/artifacts/artifacts-view";
+import type { Metadata } from 'next';
+import { ArtifactsView } from '@/components/artifacts/artifacts-view';
 
 export const metadata: Metadata = {
-  title: "Artifacts",
+  title: 'Artifacts',
 };
 
 export default function ArtifactsPage() {

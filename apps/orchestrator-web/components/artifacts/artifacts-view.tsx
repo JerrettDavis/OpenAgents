@@ -1,20 +1,17 @@
-"use client";
+'use client';
 
-import { useMemo, useState } from "react";
-import { useJobs } from "@/lib/hooks/use-jobs";
-import { useArtifacts } from "@/lib/hooks/use-artifacts";
-import { Spinner } from "@/components/ui/spinner";
-import { ErrorState } from "@/components/ui/error-state";
-import { EmptyState } from "@/components/ui/empty-state";
+import { useMemo, useState } from 'react';
+import { useJobs } from '@/lib/hooks/use-jobs';
+import { useArtifacts } from '@/lib/hooks/use-artifacts';
+import { Spinner } from '@/components/ui/spinner';
+import { ErrorState } from '@/components/ui/error-state';
+import { EmptyState } from '@/components/ui/empty-state';
 
 export function ArtifactsView() {
   const jobsState = useJobs({});
-  const [jobId, setJobId] = useState<string>("");
+  const [jobId, setJobId] = useState<string>('');
 
-  const defaultJobId = useMemo(
-    () => jobId || jobsState.jobs[0]?.id || "",
-    [jobId, jobsState.jobs]
-  );
+  const defaultJobId = useMemo(() => jobId || jobsState.jobs[0]?.id || '', [jobId, jobsState.jobs]);
 
   const artifacts = useArtifacts(defaultJobId);
 
@@ -43,11 +40,16 @@ export function ArtifactsView() {
       {!defaultJobId ? (
         <EmptyState title="No jobs" description="Create a job first to view artifacts." />
       ) : artifacts.loading ? (
-        <div className="flex justify-center py-12"><Spinner size="lg" /></div>
+        <div className="flex justify-center py-12">
+          <Spinner size="lg" />
+        </div>
       ) : artifacts.error ? (
         <ErrorState message={artifacts.error} onRetry={artifacts.refetch} />
       ) : artifacts.items.length === 0 ? (
-        <EmptyState title="No artifacts found" description="This workspace path currently has no files." />
+        <EmptyState
+          title="No artifacts found"
+          description="This workspace path currently has no files."
+        />
       ) : (
         <div className="overflow-hidden rounded-xl border border-zinc-800">
           <table className="w-full text-xs">
@@ -64,8 +66,12 @@ export function ArtifactsView() {
                 <tr key={item.id} className="bg-zinc-900/40">
                   <td className="px-4 py-2 text-zinc-200">{item.name}</td>
                   <td className="px-4 py-2 font-mono text-zinc-500">{item.path}</td>
-                  <td className="px-4 py-2 text-zinc-400">{item.is_directory ? "directory" : item.source}</td>
-                  <td className="px-4 py-2 text-zinc-400">{item.is_directory ? "—" : item.size_bytes.toLocaleString()}</td>
+                  <td className="px-4 py-2 text-zinc-400">
+                    {item.is_directory ? 'directory' : item.source}
+                  </td>
+                  <td className="px-4 py-2 text-zinc-400">
+                    {item.is_directory ? '—' : item.size_bytes.toLocaleString()}
+                  </td>
                 </tr>
               ))}
             </tbody>
