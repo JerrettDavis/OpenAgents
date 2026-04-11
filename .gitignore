@@ -225,9 +225,10 @@ __pycache__/
 # ─────────────────────────────────────────────────────────────────────────
 
 # Job workspaces (runtime data)
-workspaces/
-jobs/
-local-workspaces/
+/workspaces/
+/jobs/
+/local-workspaces/
+**/local-workspaces/
 
 # Docker volumes and containers
 volumes/
