@@ -31,7 +31,7 @@ export function AgentsView() {
 
   return (
     <div className="flex flex-1 flex-col gap-3">
-      <section className="console-surface-strong console-hairline overflow-hidden rounded-xl px-5 py-5">
+      <section className="console-surface-strong console-hairline overflow-hidden rounded-[3px] px-5 py-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-2.5">
             <div>
@@ -62,7 +62,7 @@ export function AgentsView() {
         </div>
       </section>
 
-      <section className="console-surface overflow-hidden rounded-xl">
+      <section className="console-surface overflow-hidden rounded-[3px]">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-[color:var(--line)] bg-black/10 text-left text-[11px] uppercase tracking-[0.08em] text-[color:var(--foreground-muted)]">
@@ -105,7 +105,7 @@ function Card({ label, value }: { label: string; value: string }) {
   return (
     <div
       data-testid={`agents-stat-${label.toLowerCase().replace(/\s+/g, '-')}`}
-      className="rounded-md border border-[color:var(--line)] bg-black/10 px-3.5 py-3"
+      className="rounded-[2px] border border-[color:var(--line)] bg-black/10 px-3.5 py-3"
     >
       <p className="console-label">{label}</p>
       <p className="mt-2 text-2xl font-semibold text-[color:var(--foreground)]">{value}</p>

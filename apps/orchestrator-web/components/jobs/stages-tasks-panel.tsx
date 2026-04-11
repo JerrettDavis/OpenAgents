@@ -115,7 +115,7 @@ function StageRow({ jobId, stage }: { jobId: string; stage: ApiStage }) {
   const [expanded, setExpanded] = useState(stage.state === 'Running' || stage.state === 'Failed');
 
   return (
-    <div className="overflow-hidden rounded-lg border border-zinc-800">
+    <div className="overflow-hidden rounded-[3px] border border-zinc-800">
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
@@ -142,7 +142,9 @@ function StageRow({ jobId, stage }: { jobId: string; stage: ApiStage }) {
           </span>
         )}
         {stage.is_optional && (
-          <span className="rounded bg-zinc-800 px-1.5 py-0.5 text-xs text-zinc-500">optional</span>
+          <span className="rounded-[2px] bg-zinc-800 px-1.5 py-0.5 text-xs text-zinc-500">
+            optional
+          </span>
         )}
         <span className="text-xs text-zinc-600">
           {stage.started_at_utc

@@ -39,7 +39,7 @@ export function SettingsView() {
 
   return (
     <div className="flex flex-1 flex-col gap-3">
-      <section className="console-surface-strong console-hairline overflow-hidden rounded-xl px-5 py-5">
+      <section className="console-surface-strong console-hairline overflow-hidden rounded-[3px] px-5 py-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-2.5">
             <div>
@@ -63,7 +63,7 @@ export function SettingsView() {
             type="button"
             disabled
             title="Provider creation UI is not shipped yet"
-            className="rounded-md border border-[color:var(--line)] bg-black/10 px-4 py-2 text-sm font-semibold text-[color:var(--foreground-muted)] opacity-70"
+            className="rounded-[2px] border border-[color:var(--line)] bg-black/10 px-4 py-2 text-sm font-semibold text-[color:var(--foreground-muted)] opacity-70"
           >
             + New Provider
           </button>
@@ -72,14 +72,14 @@ export function SettingsView() {
 
       {actionError && <ErrorState message={actionError} />}
 
-      <div className="console-surface rounded-md p-4 text-sm">
+      <div className="console-surface rounded-[3px] p-4 text-sm">
         <p className="console-kicker">Workspace root</p>
         <p className="mt-2 break-all font-mono text-[color:var(--foreground-soft)]">
           {system.info?.workspace_root ?? '—'}
         </p>
       </div>
 
-      <div className="console-surface overflow-hidden rounded-xl">
+      <div className="console-surface overflow-hidden rounded-[3px]">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-[color:var(--line)] bg-black/10 text-left text-[11px] uppercase tracking-[0.08em] text-[color:var(--foreground-muted)]">
@@ -104,7 +104,7 @@ export function SettingsView() {
                 <td className="px-4 py-3.5">
                   <button
                     onClick={() => void toggleProvider(p.provider_id, p.is_enabled)}
-                    className="rounded-md border border-[color:var(--line)] px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-[color:var(--foreground-soft)] transition hover:border-[color:var(--line-strong)] hover:text-[color:var(--foreground)]"
+                    className="rounded-[2px] border border-[color:var(--line)] px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-[color:var(--foreground-soft)] transition hover:border-[color:var(--line-strong)] hover:text-[color:var(--foreground)]"
                   >
                     {p.is_enabled ? 'Disable' : 'Enable'}
                   </button>

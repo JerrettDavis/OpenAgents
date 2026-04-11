@@ -112,7 +112,7 @@ export function TopBar() {
         </div>
 
         <div className="flex flex-wrap items-center justify-end">
-          <div className="flex flex-wrap overflow-hidden rounded-[6px] border border-[color:var(--line)] bg-black/12">
+          <div className="flex flex-wrap overflow-hidden rounded-[2px] border border-[color:var(--line)] bg-black/12">
             <StatusChip
               label="API"
               value={healthy === null ? 'Checking' : healthy ? 'Online' : 'Offline'}

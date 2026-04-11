@@ -79,7 +79,7 @@ function EventRow({ event }: { event: ApiEvent }) {
       </div>
 
       <span
-        className="shrink-0 cursor-pointer select-all rounded-md border border-[color:var(--line)] px-2 py-1 text-[0.68rem] text-[color:var(--foreground-muted)] hover:text-[color:var(--foreground-soft)]"
+        className="shrink-0 cursor-pointer select-all rounded-[2px] border border-[color:var(--line)] px-2 py-1 text-[0.68rem] text-[color:var(--foreground-muted)] hover:text-[color:var(--foreground-soft)]"
         title="Click to select event ID"
       >
         {event.event_id}
@@ -127,7 +127,7 @@ export function EventsTimeline({ jobId, liveEvents = [] }: EventsTimelineProps) 
   }
 
   return (
-    <div className="console-surface overflow-hidden rounded-lg">
+    <div className="console-surface overflow-hidden rounded-[3px]">
       <div className="flex items-center justify-between border-b border-[color:var(--line)] bg-black/10 px-4 py-3">
         <div>
           <p className="console-kicker">Timeline</p>

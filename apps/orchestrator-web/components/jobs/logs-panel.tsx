@@ -50,7 +50,7 @@ export function LogsPanel({ jobId, liveLines = [] }: LogsPanelProps) {
   }
 
   return (
-    <div className="console-surface flex h-full flex-col overflow-hidden rounded-lg">
+    <div className="console-surface flex h-full flex-col overflow-hidden rounded-[3px]">
       <div className="flex shrink-0 items-center justify-between border-b border-[color:var(--line)] bg-black/10 px-4 py-2.5">
         <div>
           <p className="console-kicker">Execution log</p>
@@ -60,7 +60,7 @@ export function LogsPanel({ jobId, liveLines = [] }: LogsPanelProps) {
         </div>
         <button
           onClick={refetch}
-          className="rounded-md border border-[color:var(--line)] px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-[color:var(--foreground-soft)] transition hover:border-[color:var(--line-strong)] hover:text-[color:var(--foreground)]"
+          className="rounded-[2px] border border-[color:var(--line)] px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-[color:var(--foreground-soft)] transition hover:border-[color:var(--line-strong)] hover:text-[color:var(--foreground)]"
         >
           ↺ Reload
         </button>
@@ -78,7 +78,7 @@ export function LogsPanel({ jobId, liveLines = [] }: LogsPanelProps) {
 
 function LogLine({ line }: { line: ApiLogLine }) {
   return (
-    <div className="grid grid-cols-[78px_128px_minmax(0,1fr)] gap-3 rounded-xl px-2 py-1.5 hover:bg-white/[0.03]">
+    <div className="grid grid-cols-[78px_128px_minmax(0,1fr)] gap-3 rounded-[2px] px-2 py-1.5 hover:bg-white/[0.03]">
       <span className="shrink-0 select-none text-[color:var(--foreground-muted)]">
         {formatLogTime(line.timestamp)}
       </span>

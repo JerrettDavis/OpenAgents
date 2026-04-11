@@ -60,7 +60,7 @@ export function Badge({ children, variant = 'default', className, dot = false }:
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-[4px] px-2 py-1 text-[11px] font-medium leading-none',
+        'inline-flex items-center gap-1.5 rounded-[2px] px-2 py-1 text-[11px] font-medium leading-none',
         VARIANT_CLASSES[variant],
         className
       )}

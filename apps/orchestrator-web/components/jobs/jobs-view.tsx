@@ -38,7 +38,7 @@ export function JobsView() {
 
   return (
     <div className="flex flex-col gap-3">
-      <section className="console-surface-strong console-hairline overflow-hidden rounded-xl">
+      <section className="console-surface-strong console-hairline overflow-hidden rounded-[3px]">
         <div className="flex flex-col gap-4 px-4 py-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-2.5">
             <div>
@@ -89,7 +89,7 @@ export function JobsView() {
                   key={f.value}
                   onClick={() => setStateFilter(f.value)}
                   className={cn(
-                    'rounded-md border px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] transition',
+                    'rounded-[2px] border px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] transition',
                     stateFilter === f.value
                       ? 'border-[color:color-mix(in_oklch,var(--accent)_38%,var(--line-strong))] bg-[color:color-mix(in_oklch,var(--accent)_18%,transparent)] text-[color:var(--foreground)]'
                       : 'border-[color:var(--line)] text-[color:var(--foreground-muted)] hover:border-[color:var(--line-strong)] hover:text-[color:var(--foreground)]'
@@ -102,7 +102,7 @@ export function JobsView() {
 
             <button
               onClick={() => setDialogOpen(true)}
-              className="inline-flex items-center justify-center gap-2 rounded-md border border-[color:color-mix(in_oklch,var(--accent)_38%,var(--line-strong))] bg-[color:color-mix(in_oklch,var(--accent)_18%,transparent)] px-4 py-2 text-sm font-semibold text-[color:var(--foreground)] transition hover:bg-[color:color-mix(in_oklch,var(--accent)_24%,transparent)]"
+              className="inline-flex items-center justify-center gap-2 rounded-[2px] border border-[color:color-mix(in_oklch,var(--accent)_38%,var(--line-strong))] bg-[color:color-mix(in_oklch,var(--accent)_18%,transparent)] px-4 py-2 text-sm font-semibold text-[color:var(--foreground)] transition hover:bg-[color:color-mix(in_oklch,var(--accent)_24%,transparent)]"
             >
               <span aria-hidden>+</span> New Job
             </button>
@@ -110,7 +110,7 @@ export function JobsView() {
         </div>
       </section>
 
-      <section className="console-surface overflow-hidden rounded-xl">
+      <section className="console-surface overflow-hidden rounded-[3px]">
         {loading && jobs.length === 0 ? (
           <div className="flex items-center justify-center py-24">
             <Spinner size="lg" />
@@ -133,7 +133,7 @@ export function JobsView() {
                 !stateFilter ? (
                   <button
                     onClick={() => setDialogOpen(true)}
-                    className="rounded-md border border-[color:color-mix(in_oklch,var(--accent)_38%,var(--line-strong))] bg-[color:color-mix(in_oklch,var(--accent)_18%,transparent)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[color:var(--foreground)] transition hover:bg-[color:color-mix(in_oklch,var(--accent)_24%,transparent)]"
+                    className="rounded-[2px] border border-[color:color-mix(in_oklch,var(--accent)_38%,var(--line-strong))] bg-[color:color-mix(in_oklch,var(--accent)_18%,transparent)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[color:var(--foreground)] transition hover:bg-[color:color-mix(in_oklch,var(--accent)_24%,transparent)]"
                   >
                     + New Job
                   </button>
@@ -157,7 +157,7 @@ export function JobsView() {
 
 function MetricCard({ label, value, note }: { label: string; value: string; note: string }) {
   return (
-    <div className="rounded-lg border border-[color:var(--line)] bg-black/10 px-4 py-3">
+    <div className="rounded-[2px] border border-[color:var(--line)] bg-black/10 px-4 py-3">
       <p className="console-label">{label}</p>
       <p className="mt-2 text-2xl font-semibold text-[color:var(--foreground)]">{value}</p>
       <p className="mt-1 text-sm text-[color:var(--foreground-muted)]">{note}</p>
@@ -198,13 +198,13 @@ function JobRow({ job }: { job: ApiJobSummary }) {
             {truncate(job.title, 60)}
           </span>
           <div className="flex flex-wrap items-center gap-2 text-xs text-[color:var(--foreground-muted)]">
-            <span className="rounded-md border border-[color:var(--line)] bg-black/10 px-2.5 py-1 font-mono">
+            <span className="rounded-[2px] border border-[color:var(--line)] bg-black/10 px-2.5 py-1 font-mono">
               {job.id}
             </span>
-            <span className="rounded-md border border-[color:var(--line)] bg-black/10 px-2.5 py-1">
+            <span className="rounded-[2px] border border-[color:var(--line)] bg-black/10 px-2.5 py-1">
               {job.workflow_id}
             </span>
-            <span className="rounded-md border border-[color:var(--line)] bg-black/10 px-2.5 py-1 lg:hidden">
+            <span className="rounded-[2px] border border-[color:var(--line)] bg-black/10 px-2.5 py-1 lg:hidden">
               {job.provider_id}
             </span>
           </div>

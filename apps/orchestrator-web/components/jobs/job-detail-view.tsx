@@ -58,7 +58,7 @@ function JobActions({ job, onRefresh }: { job: ApiJobDetail; onRefresh: () => vo
         <button
           disabled={!!actionPending}
           onClick={() => void doAction('start', () => jobsApi.start(job.id))}
-          className="inline-flex min-h-10 items-center gap-2 rounded-md border border-emerald-700 bg-emerald-950/60 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-emerald-100 transition hover:border-emerald-500 hover:bg-emerald-900/70 disabled:opacity-50"
+          className="inline-flex min-h-10 items-center gap-2 rounded-[2px] border border-emerald-700 bg-emerald-950/60 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-emerald-100 transition hover:border-emerald-500 hover:bg-emerald-900/70 disabled:opacity-50"
         >
           {actionPending === 'start' && <Spinner size="xs" />}▶ Start
         </button>
@@ -68,7 +68,7 @@ function JobActions({ job, onRefresh }: { job: ApiJobDetail; onRefresh: () => vo
         <button
           disabled={!!actionPending}
           onClick={() => void doAction('stop', () => jobsApi.stop(job.id))}
-          className="inline-flex min-h-10 items-center gap-2 rounded-md border border-red-800 bg-red-950/40 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-red-100 transition hover:border-red-600 hover:bg-red-950/60 disabled:opacity-50"
+          className="inline-flex min-h-10 items-center gap-2 rounded-[2px] border border-red-800 bg-red-950/40 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-red-100 transition hover:border-red-600 hover:bg-red-950/60 disabled:opacity-50"
         >
           {actionPending === 'stop' && <Spinner size="xs" />}■ Stop
         </button>
@@ -78,7 +78,7 @@ function JobActions({ job, onRefresh }: { job: ApiJobDetail; onRefresh: () => vo
         <button
           disabled={!!actionPending}
           onClick={() => void doAction('archive', () => jobsApi.archive(job.id))}
-          className="inline-flex min-h-10 items-center gap-2 rounded-md border border-[color:var(--line)] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[color:var(--foreground-soft)] transition hover:border-[color:var(--line-strong)] hover:text-[color:var(--foreground)] disabled:opacity-50"
+          className="inline-flex min-h-10 items-center gap-2 rounded-[2px] border border-[color:var(--line)] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[color:var(--foreground-soft)] transition hover:border-[color:var(--line-strong)] hover:text-[color:var(--foreground)] disabled:opacity-50"
         >
           {actionPending === 'archive' && <Spinner size="xs" />}
           Archive
@@ -94,7 +94,7 @@ function JobActions({ job, onRefresh }: { job: ApiJobDetail; onRefresh: () => vo
               router.push('/jobs');
             })
           }
-          className="inline-flex min-h-10 items-center gap-2 rounded-md border border-red-900 bg-red-950/30 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-red-100 transition hover:border-red-700 hover:bg-red-950/50 disabled:opacity-50"
+          className="inline-flex min-h-10 items-center gap-2 rounded-[2px] border border-red-900 bg-red-950/30 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-red-100 transition hover:border-red-700 hover:bg-red-950/50 disabled:opacity-50"
         >
           {actionPending === 'delete' && <Spinner size="xs" />}
           Delete
@@ -104,7 +104,7 @@ function JobActions({ job, onRefresh }: { job: ApiJobDetail; onRefresh: () => vo
       <button
         disabled={!!actionPending}
         onClick={onRefresh}
-        className="min-h-10 rounded-md border border-[color:var(--line)] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[color:var(--foreground-soft)] transition hover:border-[color:var(--line-strong)] hover:text-[color:var(--foreground)] disabled:opacity-50"
+        className="min-h-10 rounded-[2px] border border-[color:var(--line)] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[color:var(--foreground-soft)] transition hover:border-[color:var(--line-strong)] hover:text-[color:var(--foreground)] disabled:opacity-50"
         title="Refresh job"
       >
         ↺ Refresh
@@ -219,7 +219,7 @@ export function JobDetailView({ jobId }: JobDetailViewProps) {
         </p>
         <a
           href="/jobs"
-          className="rounded-lg border border-zinc-700 px-4 py-2 text-xs text-zinc-400 hover:border-zinc-500 hover:text-zinc-200"
+          className="rounded-[2px] border border-zinc-700 px-4 py-2 text-xs text-zinc-400 hover:border-zinc-500 hover:text-zinc-200"
         >
           ← Back to Jobs
         </a>
@@ -243,7 +243,7 @@ export function JobDetailView({ jobId }: JobDetailViewProps) {
 
   return (
     <div className="flex flex-col gap-3">
-      <section className="console-surface-strong console-hairline overflow-hidden rounded-xl">
+      <section className="console-surface-strong console-hairline overflow-hidden rounded-[3px]">
         <div className="flex flex-col gap-4 px-4 py-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2 text-xs text-[color:var(--foreground-muted)]">
@@ -251,7 +251,7 @@ export function JobDetailView({ jobId }: JobDetailViewProps) {
                 Jobs
               </a>
               <span>›</span>
-              <span className="rounded-md border border-[color:var(--line)] px-2 py-1 font-mono">
+              <span className="rounded-[2px] border border-[color:var(--line)] px-2 py-1 font-mono">
                 {job.id}
               </span>
               <span>›</span>
@@ -303,11 +303,11 @@ export function JobDetailView({ jobId }: JobDetailViewProps) {
         </div>
       </section>
 
-      <section className="console-surface overflow-hidden rounded-xl px-4 py-4">
+      <section className="console-surface overflow-hidden rounded-[3px] px-4 py-4">
         <JobSummaryCards job={job} />
       </section>
 
-      <section className="console-surface overflow-hidden rounded-xl">
+      <section className="console-surface overflow-hidden rounded-[3px]">
         <div className="border-b border-[color:var(--line)] px-4 py-3">
           <div className="flex flex-wrap gap-2" role="tablist" aria-label="Job detail sections">
             {TABS.map((tab) => (
@@ -326,7 +326,7 @@ export function JobDetailView({ jobId }: JobDetailViewProps) {
                   )
                 }
                 className={cn(
-                  'rounded-md border px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] transition',
+                  'rounded-[2px] border px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] transition',
                   activeTab === tab.id
                     ? 'border-[color:color-mix(in_oklch,var(--accent)_38%,var(--line-strong))] bg-[color:color-mix(in_oklch,var(--accent)_18%,transparent)] text-[color:var(--foreground)]'
                     : 'border-[color:var(--line)] text-[color:var(--foreground-muted)] hover:border-[color:var(--line-strong)] hover:text-[color:var(--foreground)]'
@@ -364,14 +364,14 @@ function OverviewTab({ job }: { job: ApiJobDetail }) {
   return (
     <div className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)]">
       <div className="space-y-4">
-        <div className="console-surface rounded-lg p-4">
+        <div className="console-surface rounded-[3px] p-4">
           <p className="console-kicker">Request</p>
           <p className="mt-3 text-sm leading-7 text-[color:var(--foreground-soft)]">
             {job.description || 'No additional request context was attached to this run.'}
           </p>
         </div>
 
-        <details className="console-surface group overflow-hidden rounded-lg">
+        <details className="console-surface group overflow-hidden rounded-[3px]">
           <summary className="flex cursor-pointer items-center justify-between px-4 py-3 text-xs font-semibold uppercase tracking-[0.12em] text-[color:var(--foreground-soft)] hover:text-[color:var(--foreground)]">
             <span>Raw job metadata</span>
             <span className="transition-transform group-open:rotate-90">›</span>
@@ -382,7 +382,7 @@ function OverviewTab({ job }: { job: ApiJobDetail }) {
         </details>
       </div>
 
-      <div className="console-surface rounded-lg p-4">
+      <div className="console-surface rounded-[3px] p-4">
         <p className="console-kicker">Run profile</p>
         <div className="mt-4 space-y-3">
           <OverviewDatum label="Workflow" value={job.workflow_id} />
@@ -400,7 +400,7 @@ function OverviewTab({ job }: { job: ApiJobDetail }) {
 
 function HeroDatum({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-[color:var(--line)] bg-black/10 px-4 py-3">
+    <div className="rounded-[2px] border border-[color:var(--line)] bg-black/10 px-4 py-3">
       <p className="console-label">{label}</p>
       <p className="mt-2 text-sm font-semibold text-[color:var(--foreground)]">{value}</p>
     </div>
@@ -417,7 +417,7 @@ function OverviewDatum({
   mono?: boolean;
 }) {
   return (
-    <div className="rounded-lg border border-[color:var(--line)] bg-black/10 px-4 py-3">
+    <div className="rounded-[2px] border border-[color:var(--line)] bg-black/10 px-4 py-3">
       <p className="console-label">{label}</p>
       <p
         className={cn(

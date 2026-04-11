@@ -9,7 +9,7 @@ interface SummaryCardProps {
 
 function SummaryCard({ label, value }: SummaryCardProps) {
   return (
-    <div className="rounded-lg border border-[color:var(--line)] bg-black/10 px-4 py-3">
+    <div className="rounded-[2px] border border-[color:var(--line)] bg-black/10 px-4 py-3">
       <span className="console-label">{label}</span>
       <div className="mt-2 text-sm text-[color:var(--foreground)]">{value}</div>
     </div>
@@ -30,14 +30,14 @@ function CountBar({ label, completed, running, notStarted, total }: CountBarProp
   const pctRunning = (running / total) * 100;
 
   return (
-    <div className="rounded-lg border border-[color:var(--line)] bg-black/10 px-4 py-3">
+    <div className="rounded-[2px] border border-[color:var(--line)] bg-black/10 px-4 py-3">
       <div className="flex items-center justify-between">
         <span className="console-label">{label}</span>
         <span className="text-xs text-[color:var(--foreground-soft)]">
           {completed}/{total}
         </span>
       </div>
-      <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-black/30">
+      <div className="mt-3 h-2 w-full overflow-hidden rounded-[2px] bg-black/30">
         <div className="flex h-full">
           <div className="h-full bg-emerald-400 transition-all" style={{ width: `${pctDone}%` }} />
           <div

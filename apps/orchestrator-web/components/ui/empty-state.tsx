@@ -7,9 +7,9 @@ interface EmptyStateProps {
 
 export function EmptyState({ icon = '[]', title, description, action }: EmptyStateProps) {
   return (
-    <div className="console-surface console-hairline flex flex-col items-center justify-center gap-3 rounded-[8px] px-8 py-12 text-center">
+    <div className="console-surface console-hairline flex flex-col items-center justify-center gap-3 rounded-[3px] px-8 py-12 text-center">
       <span
-        className="flex h-12 w-12 items-center justify-center rounded-[4px] border border-[color:color-mix(in_oklch,var(--line-strong)_40%,transparent)] bg-[color:color-mix(in_oklch,var(--surface-strong)_82%,transparent)] text-sm font-mono text-[color:var(--foreground-muted)]"
+        className="flex h-12 w-12 items-center justify-center rounded-[2px] border border-[color:color-mix(in_oklch,var(--line-strong)_40%,transparent)] bg-[color:color-mix(in_oklch,var(--surface-strong)_82%,transparent)] text-sm font-mono text-[color:var(--foreground-muted)]"
         aria-hidden
       >
         {icon}

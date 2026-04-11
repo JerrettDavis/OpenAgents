@@ -152,7 +152,7 @@ export function Sidebar() {
   return (
     <aside className="relative flex h-full w-64 shrink-0 flex-col overflow-hidden border-r border-[color:var(--line)] bg-[color:color-mix(in_oklch,var(--surface-strong)_96%,black_4%)]">
       <div className="console-hairline flex items-start gap-3 border-b border-[color:var(--line)] px-4 py-4">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-[color:color-mix(in_oklch,var(--line-strong)_42%,transparent)] bg-[color:color-mix(in_oklch,var(--surface-strong)_88%,transparent)] text-xs font-black tracking-[0.14em] text-[color:var(--accent)]">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[2px] border border-[color:color-mix(in_oklch,var(--line-strong)_42%,transparent)] bg-[color:color-mix(in_oklch,var(--surface-strong)_88%,transparent)] text-xs font-black tracking-[0.14em] text-[color:var(--accent)]">
           OA
         </div>
         <div className="min-w-0">
@@ -183,7 +183,7 @@ export function Sidebar() {
             </div>
             <div
               className={cn(
-                'rounded-[4px] px-2.5 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.08em]',
+                'rounded-[2px] px-2.5 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.08em]',
                 runtimeState === 'ready'
                   ? 'border border-emerald-800/80 bg-emerald-950/60 text-emerald-200'
                   : runtimeState === 'partial'
@@ -242,7 +242,7 @@ export function Sidebar() {
                 <Link
                   href={item.href}
                   className={cn(
-                    'group flex items-center gap-3 rounded-[4px] px-3 py-2.5 text-sm font-medium transition',
+                    'group flex items-center gap-3 rounded-[2px] px-3 py-2.5 text-sm font-medium transition',
                     isActive
                       ? 'border border-[color:color-mix(in_oklch,var(--line-strong)_45%,transparent)] bg-[color:color-mix(in_oklch,var(--surface-strong)_86%,transparent)] text-[color:var(--foreground)] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]'
                       : 'border border-transparent text-[color:var(--foreground-soft)] hover:border-[color:var(--line)] hover:bg-[color:color-mix(in_oklch,var(--surface)_74%,transparent)] hover:text-[color:var(--foreground)]'
@@ -251,7 +251,7 @@ export function Sidebar() {
                 >
                   <span
                     className={cn(
-                      'flex h-9 w-9 shrink-0 items-center justify-center rounded-[4px] border transition',
+                      'flex h-9 w-9 shrink-0 items-center justify-center rounded-[2px] border transition',
                       isActive
                         ? 'border-[color:color-mix(in_oklch,var(--line-strong)_52%,transparent)] bg-[color:color-mix(in_oklch,var(--accent)_18%,transparent)] text-[color:var(--accent)]'
                         : 'border-[color:var(--line)] bg-black/10 text-[color:var(--foreground-muted)] group-hover:border-[color:color-mix(in_oklch,var(--line-strong)_36%,transparent)] group-hover:text-[color:var(--foreground-soft)]'
@@ -281,7 +281,7 @@ export function Sidebar() {
           <Link
             href="/settings"
             className={cn(
-              'group flex items-center gap-3 rounded-[4px] px-3 py-2.5 text-sm font-medium transition',
+              'group flex items-center gap-3 rounded-[2px] px-3 py-2.5 text-sm font-medium transition',
               isSettingsActive
                 ? 'border border-[color:color-mix(in_oklch,var(--line-strong)_45%,transparent)] bg-[color:color-mix(in_oklch,var(--surface-strong)_86%,transparent)] text-[color:var(--foreground)] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]'
                 : 'border border-transparent text-[color:var(--foreground-soft)] hover:border-[color:var(--line)] hover:bg-[color:color-mix(in_oklch,var(--surface)_74%,transparent)] hover:text-[color:var(--foreground)]'
@@ -290,7 +290,7 @@ export function Sidebar() {
           >
             <span
               className={cn(
-                'flex h-9 w-9 shrink-0 items-center justify-center rounded-[4px] border transition',
+                'flex h-9 w-9 shrink-0 items-center justify-center rounded-[2px] border transition',
                 isSettingsActive
                   ? 'border-[color:color-mix(in_oklch,var(--line-strong)_52%,transparent)] bg-[color:color-mix(in_oklch,var(--accent)_18%,transparent)] text-[color:var(--accent)]'
                   : 'border-[color:var(--line)] bg-black/10 text-[color:var(--foreground-muted)] group-hover:border-[color:color-mix(in_oklch,var(--line-strong)_36%,transparent)] group-hover:text-[color:var(--foreground-soft)]'
