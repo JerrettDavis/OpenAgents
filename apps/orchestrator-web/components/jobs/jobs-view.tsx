@@ -37,16 +37,16 @@ export function JobsView() {
   const completedCount = jobs.filter((job) => job.state === 'Completed').length;
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
       <section className="console-surface-strong console-hairline overflow-hidden rounded-xl">
-        <div className="flex flex-col gap-5 px-5 py-5 lg:flex-row lg:items-end lg:justify-between">
-          <div className="space-y-3">
+        <div className="flex flex-col gap-4 px-4 py-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="space-y-2.5">
             <div>
               <p className="console-kicker">Run queue</p>
-              <h1 className="mt-2 text-3xl font-semibold text-[color:var(--foreground)]">Jobs</h1>
+              <h1 className="mt-2 text-2xl font-semibold text-[color:var(--foreground)]">Jobs</h1>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-[color:var(--foreground-soft)]">
-                Monitor live orchestration, catch failures early, and jump straight into the run
-                surface that matters.
+                Filter the queue, spot failures fast, and jump directly into the run that needs
+                intervention.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -62,7 +62,7 @@ export function JobsView() {
             </div>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-3 lg:min-w-[520px]">
+          <div className="grid gap-2 sm:grid-cols-3 lg:min-w-[420px]">
             <MetricCard
               label="Visible jobs"
               value={String(totalCount)}
@@ -81,7 +81,7 @@ export function JobsView() {
           </div>
         </div>
 
-        <div className="border-t border-[color:var(--line)] px-5 py-4">
+        <div className="border-t border-[color:var(--line)] px-4 py-3">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex flex-wrap gap-2">
               {STATE_FILTERS.map((f) => (
@@ -89,7 +89,7 @@ export function JobsView() {
                   key={f.value}
                   onClick={() => setStateFilter(f.value)}
                   className={cn(
-                    'rounded-md border px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] transition',
+                    'rounded-md border px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] transition',
                     stateFilter === f.value
                       ? 'border-[color:color-mix(in_oklch,var(--accent)_38%,var(--line-strong))] bg-[color:color-mix(in_oklch,var(--accent)_18%,transparent)] text-[color:var(--foreground)]'
                       : 'border-[color:var(--line)] text-[color:var(--foreground-muted)] hover:border-[color:var(--line-strong)] hover:text-[color:var(--foreground)]'
@@ -102,7 +102,7 @@ export function JobsView() {
 
             <button
               onClick={() => setDialogOpen(true)}
-              className="inline-flex items-center justify-center gap-2 rounded-md border border-[color:color-mix(in_oklch,var(--accent)_38%,var(--line-strong))] bg-[color:color-mix(in_oklch,var(--accent)_18%,transparent)] px-4 py-2.5 text-sm font-semibold text-[color:var(--foreground)] transition hover:bg-[color:color-mix(in_oklch,var(--accent)_24%,transparent)]"
+              className="inline-flex items-center justify-center gap-2 rounded-md border border-[color:color-mix(in_oklch,var(--accent)_38%,var(--line-strong))] bg-[color:color-mix(in_oklch,var(--accent)_18%,transparent)] px-4 py-2 text-sm font-semibold text-[color:var(--foreground)] transition hover:bg-[color:color-mix(in_oklch,var(--accent)_24%,transparent)]"
             >
               <span aria-hidden>+</span> New Job
             </button>
@@ -116,11 +116,11 @@ export function JobsView() {
             <Spinner size="lg" />
           </div>
         ) : error ? (
-          <div className="p-5">
+          <div className="p-4">
             <ErrorState title="Could not load jobs" message={error} onRetry={refetch} />
           </div>
         ) : jobs.length === 0 ? (
-          <div className="p-5">
+          <div className="p-4">
             <EmptyState
               icon="⎔"
               title="No jobs in this lane"
@@ -159,9 +159,7 @@ function MetricCard({ label, value, note }: { label: string; value: string; note
   return (
     <div className="rounded-lg border border-[color:var(--line)] bg-black/10 px-4 py-3">
       <p className="console-label">{label}</p>
-      <p className="mt-2 font-display text-3xl font-semibold text-[color:var(--foreground)]">
-        {value}
-      </p>
+      <p className="mt-2 text-2xl font-semibold text-[color:var(--foreground)]">{value}</p>
       <p className="mt-1 text-sm text-[color:var(--foreground-muted)]">{note}</p>
     </div>
   );
@@ -172,13 +170,13 @@ function JobsTable({ jobs }: { jobs: ApiJobSummary[] }) {
     <div className="overflow-hidden">
       <table className="w-full text-sm">
         <thead className="text-left">
-          <tr className="border-b border-[color:var(--line)] text-[color:var(--foreground-muted)]">
-            <th className="px-5 py-3 font-medium">Run</th>
-            <th className="px-5 py-3 font-medium">Status</th>
-            <th className="hidden px-5 py-3 font-medium lg:table-cell">Workflow</th>
-            <th className="hidden px-5 py-3 font-medium lg:table-cell">Provider</th>
-            <th className="hidden px-5 py-3 font-medium xl:table-cell">Runtime</th>
-            <th className="px-5 py-3 font-medium">Created</th>
+          <tr className="border-b border-[color:var(--line)] bg-black/10 text-left text-[11px] uppercase tracking-[0.08em] text-[color:var(--foreground-muted)]">
+            <th className="px-4 py-3 font-medium">Run</th>
+            <th className="px-4 py-3 font-medium">Status</th>
+            <th className="hidden px-4 py-3 font-medium lg:table-cell">Workflow</th>
+            <th className="hidden px-4 py-3 font-medium lg:table-cell">Provider</th>
+            <th className="hidden px-4 py-3 font-medium xl:table-cell">Runtime</th>
+            <th className="px-4 py-3 font-medium">Created</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-[color:var(--line)]">
@@ -194,7 +192,7 @@ function JobsTable({ jobs }: { jobs: ApiJobSummary[] }) {
 function JobRow({ job }: { job: ApiJobSummary }) {
   return (
     <tr className="bg-black/5 transition hover:bg-[color:color-mix(in_oklch,var(--surface-strong)_70%,transparent)]">
-      <td className="px-5 py-4 align-top">
+      <td className="px-4 py-3.5 align-top">
         <Link href={`/jobs/${job.id}`} className="group flex flex-col gap-2">
           <span className="font-medium text-[color:var(--foreground)] transition group-hover:text-[color:var(--accent)]">
             {truncate(job.title, 60)}
@@ -212,26 +210,26 @@ function JobRow({ job }: { job: ApiJobSummary }) {
           </div>
         </Link>
       </td>
-      <td className="px-5 py-4 align-top">
+      <td className="px-4 py-3.5 align-top">
         <div className="flex flex-wrap items-center gap-1.5">
           <JobStateBadge state={job.state} />
           <JobOutcomeBadge outcome={job.outcome} />
         </div>
       </td>
-      <td className="hidden px-5 py-4 align-top text-[color:var(--foreground-soft)] lg:table-cell">
+      <td className="hidden px-4 py-3.5 align-top text-[color:var(--foreground-soft)] lg:table-cell">
         {job.workflow_id}
       </td>
-      <td className="hidden px-5 py-4 align-top text-[color:var(--foreground-soft)] lg:table-cell">
+      <td className="hidden px-4 py-3.5 align-top text-[color:var(--foreground-soft)] lg:table-cell">
         {job.provider_id}
       </td>
-      <td className="hidden px-5 py-4 align-top text-[color:var(--foreground-muted)] xl:table-cell">
+      <td className="hidden px-4 py-3.5 align-top text-[color:var(--foreground-muted)] xl:table-cell">
         {job.duration_ms != null
           ? formatElapsed(job.started_at_utc, job.finished_at_utc)
           : job.started_at_utc
             ? formatElapsed(job.started_at_utc)
             : '—'}
       </td>
-      <td className="px-5 py-4 align-top text-[color:var(--foreground-muted)]">
+      <td className="px-4 py-3.5 align-top text-[color:var(--foreground-muted)]">
         {formatRelativeTime(job.created_at_utc)}
       </td>
     </tr>

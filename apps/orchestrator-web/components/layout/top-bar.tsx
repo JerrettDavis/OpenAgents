@@ -26,6 +26,9 @@ export function TopBar() {
   const [healthy, setHealthy] = useState<boolean | null>(null);
   const pathname = usePathname();
   const { info } = useSystemInfo();
+  const providersLoaded = info?.providers_loaded.length ?? 0;
+  const workflowsLoaded = info?.workflows_loaded.length ?? 0;
+  const activeJobs = info?.active_jobs ?? 0;
 
   const pageMeta = useMemo(() => {
     if (pathname.startsWith('/jobs/')) {
@@ -98,29 +101,28 @@ export function TopBar() {
   }, []);
 
   return (
-    <header className="border-b border-[color:var(--line)] bg-[color:color-mix(in_oklch,var(--surface)_74%,transparent)] px-4 py-3 backdrop-blur-xl lg:px-5">
-      <div className="mx-auto flex w-full max-w-[1600px] items-start justify-between gap-4">
+    <header className="border-b border-[color:var(--line)] bg-[color:color-mix(in_oklch,var(--surface)_88%,black_12%)] px-3 py-3 lg:px-4">
+      <div className="mx-auto flex w-full max-w-[1600px] items-center justify-between gap-4">
         <div className="min-w-0">
           <p className="console-kicker">{pageMeta.label}</p>
-          <div className="mt-1 flex flex-wrap items-end gap-3">
-            <p className="text-2xl font-semibold text-[color:var(--foreground)]">
-              {pageMeta.title}
-            </p>
-            <p className="pb-0.5 text-sm text-[color:var(--foreground-muted)]">
-              {pageMeta.description}
-            </p>
+          <div className="mt-1 flex flex-wrap items-center gap-3">
+            <p className="text-xl font-semibold text-[color:var(--foreground)]">{pageMeta.title}</p>
+            <p className="text-sm text-[color:var(--foreground-muted)]">{pageMeta.description}</p>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center justify-end gap-2">
-          <StatusChip
-            label="API"
-            value={healthy === null ? 'Checking' : healthy ? 'Online' : 'Offline'}
-            healthy={healthy}
-          />
-          <StatusChip label="Active jobs" value={String(info?.active_jobs ?? '—')} />
-          <StatusChip label="Providers" value={String(info?.providers_loaded.length ?? '—')} />
-          <StatusChip label="Workflows" value={String(info?.workflows_loaded.length ?? '—')} />
+        <div className="flex flex-wrap items-center justify-end">
+          <div className="flex flex-wrap overflow-hidden rounded-[6px] border border-[color:var(--line)] bg-black/12">
+            <StatusChip
+              label="API"
+              value={healthy === null ? 'Checking' : healthy ? 'Online' : 'Offline'}
+              healthy={healthy}
+              first
+            />
+            <StatusChip label="Active jobs" value={String(activeJobs)} />
+            <StatusChip label="Providers" value={String(providersLoaded)} />
+            <StatusChip label="Workflows" value={String(workflowsLoaded)} />
+          </div>
         </div>
       </div>
     </header>
@@ -131,15 +133,23 @@ function StatusChip({
   label,
   value,
   healthy,
+  first = false,
 }: {
   label: string;
   value: string;
   healthy?: boolean | null;
+  first?: boolean;
 }) {
   return (
-    <div className="flex items-center gap-2 rounded-md border border-[color:var(--line)] bg-black/10 px-3 py-2 text-xs">
+    <div
+      data-testid={`topbar-${label.toLowerCase().replace(/\s+/g, '-')}`}
+      className={cn(
+        'flex items-center gap-2 px-2.5 py-1.5 text-[11px]',
+        !first && 'border-l border-[color:var(--line)]'
+      )}
+    >
       {healthy !== undefined && <HealthDot healthy={healthy} />}
-      <span className="font-medium uppercase tracking-[0.14em] text-[color:var(--foreground-muted)]">
+      <span className="font-medium uppercase tracking-[0.08em] text-[color:var(--foreground-muted)]">
         {label}
       </span>
       <span className="text-[color:var(--foreground)]">{value}</span>

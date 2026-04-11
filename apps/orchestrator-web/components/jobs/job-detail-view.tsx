@@ -51,14 +51,14 @@ function JobActions({ job, onRefresh }: { job: ApiJobDetail; onRefresh: () => vo
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       {actionError && <span className="text-xs text-red-400">{actionError}</span>}
 
       {job.state === 'Pending' && (
         <button
           disabled={!!actionPending}
           onClick={() => void doAction('start', () => jobsApi.start(job.id))}
-          className="inline-flex items-center gap-2 rounded-md border border-emerald-700 bg-emerald-950/60 px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-emerald-100 transition hover:border-emerald-500 hover:bg-emerald-900/70 disabled:opacity-50"
+          className="inline-flex min-h-10 items-center gap-2 rounded-md border border-emerald-700 bg-emerald-950/60 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-emerald-100 transition hover:border-emerald-500 hover:bg-emerald-900/70 disabled:opacity-50"
         >
           {actionPending === 'start' && <Spinner size="xs" />}▶ Start
         </button>
@@ -68,7 +68,7 @@ function JobActions({ job, onRefresh }: { job: ApiJobDetail; onRefresh: () => vo
         <button
           disabled={!!actionPending}
           onClick={() => void doAction('stop', () => jobsApi.stop(job.id))}
-          className="inline-flex items-center gap-2 rounded-md border border-red-800 bg-red-950/40 px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-red-100 transition hover:border-red-600 hover:bg-red-950/60 disabled:opacity-50"
+          className="inline-flex min-h-10 items-center gap-2 rounded-md border border-red-800 bg-red-950/40 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-red-100 transition hover:border-red-600 hover:bg-red-950/60 disabled:opacity-50"
         >
           {actionPending === 'stop' && <Spinner size="xs" />}■ Stop
         </button>
@@ -78,7 +78,7 @@ function JobActions({ job, onRefresh }: { job: ApiJobDetail; onRefresh: () => vo
         <button
           disabled={!!actionPending}
           onClick={() => void doAction('archive', () => jobsApi.archive(job.id))}
-          className="inline-flex items-center gap-2 rounded-md border border-[color:var(--line)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[color:var(--foreground-soft)] transition hover:border-[color:var(--line-strong)] hover:text-[color:var(--foreground)] disabled:opacity-50"
+          className="inline-flex min-h-10 items-center gap-2 rounded-md border border-[color:var(--line)] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[color:var(--foreground-soft)] transition hover:border-[color:var(--line-strong)] hover:text-[color:var(--foreground)] disabled:opacity-50"
         >
           {actionPending === 'archive' && <Spinner size="xs" />}
           Archive
@@ -94,7 +94,7 @@ function JobActions({ job, onRefresh }: { job: ApiJobDetail; onRefresh: () => vo
               router.push('/jobs');
             })
           }
-          className="inline-flex items-center gap-2 rounded-md border border-red-900 bg-red-950/30 px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-red-100 transition hover:border-red-700 hover:bg-red-950/50 disabled:opacity-50"
+          className="inline-flex min-h-10 items-center gap-2 rounded-md border border-red-900 bg-red-950/30 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-red-100 transition hover:border-red-700 hover:bg-red-950/50 disabled:opacity-50"
         >
           {actionPending === 'delete' && <Spinner size="xs" />}
           Delete
@@ -104,7 +104,7 @@ function JobActions({ job, onRefresh }: { job: ApiJobDetail; onRefresh: () => vo
       <button
         disabled={!!actionPending}
         onClick={onRefresh}
-        className="rounded-md border border-[color:var(--line)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[color:var(--foreground-soft)] transition hover:border-[color:var(--line-strong)] hover:text-[color:var(--foreground)] disabled:opacity-50"
+        className="min-h-10 rounded-md border border-[color:var(--line)] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[color:var(--foreground-soft)] transition hover:border-[color:var(--line-strong)] hover:text-[color:var(--foreground)] disabled:opacity-50"
         title="Refresh job"
       >
         ↺ Refresh
@@ -154,6 +154,33 @@ export function JobDetailView({ jobId }: JobDetailViewProps) {
     // Extract events from SSE (event data is ApiEvent-shaped for non-log events)
     setLiveEvents((prev) => [event, ...prev]);
   }, []);
+
+  function focusTab(id: TabId) {
+    requestAnimationFrame(() => {
+      const element = document.getElementById(`tab-${id}`);
+      if (element instanceof HTMLButtonElement) {
+        element.focus();
+      }
+    });
+  }
+
+  function handleTabKeyDown(event: React.KeyboardEvent<HTMLButtonElement>, index: number) {
+    const lastIndex = TABS.length - 1;
+    let nextIndex: number | null = null;
+
+    if (event.key === 'ArrowRight') nextIndex = index === lastIndex ? 0 : index + 1;
+    if (event.key === 'ArrowLeft') nextIndex = index === 0 ? lastIndex : index - 1;
+    if (event.key === 'Home') nextIndex = 0;
+    if (event.key === 'End') nextIndex = lastIndex;
+
+    if (nextIndex === null) return;
+
+    event.preventDefault();
+    const nextTab = TABS[nextIndex];
+    if (!nextTab) return;
+    setActiveTab(nextTab.id);
+    focusTab(nextTab.id);
+  }
 
   // SSE connection — only for active jobs
   const { connectionState } = useJobSse(jobId, {
@@ -215,9 +242,9 @@ export function JobDetailView({ jobId }: JobDetailViewProps) {
   // ── Render ────────────────────────────────────────────────────────
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
       <section className="console-surface-strong console-hairline overflow-hidden rounded-xl">
-        <div className="flex flex-col gap-5 px-5 py-5 lg:flex-row lg:items-start lg:justify-between">
+        <div className="flex flex-col gap-4 px-4 py-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2 text-xs text-[color:var(--foreground-muted)]">
               <a href="/jobs" className="transition hover:text-[color:var(--foreground-soft)]">
@@ -230,10 +257,10 @@ export function JobDetailView({ jobId }: JobDetailViewProps) {
               <span>›</span>
               <span className="truncate">{job.workflow_id}</span>
             </div>
-            <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+            <div className="mt-3 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
               <div className="min-w-0">
                 <p className="console-kicker">Run inspection</p>
-                <h1 className="mt-2 truncate text-3xl font-semibold text-[color:var(--foreground)]">
+                <h1 className="mt-2 truncate text-2xl font-semibold text-[color:var(--foreground)]">
                   {job.title}
                 </h1>
                 {job.description && (
@@ -257,8 +284,8 @@ export function JobDetailView({ jobId }: JobDetailViewProps) {
             </div>
           </div>
 
-          <div className="flex w-full flex-col gap-4 lg:max-w-md">
-            <div className="grid grid-cols-2 gap-3">
+          <div className="flex w-full flex-col gap-3 lg:max-w-md">
+            <div className="grid grid-cols-2 gap-2.5">
               <HeroDatum label="Connection" value={job.connection_status} />
               <HeroDatum label="Model" value={job.model || 'Auto'} />
               <HeroDatum label="Started" value={job.started_at_utc ? 'Active' : 'Pending'} />
@@ -276,19 +303,30 @@ export function JobDetailView({ jobId }: JobDetailViewProps) {
         </div>
       </section>
 
-      <section className="console-surface overflow-hidden rounded-xl px-5 py-5">
+      <section className="console-surface overflow-hidden rounded-xl px-4 py-4">
         <JobSummaryCards job={job} />
       </section>
 
       <section className="console-surface overflow-hidden rounded-xl">
-        <div className="border-b border-[color:var(--line)] px-5 py-4">
-          <div className="flex flex-wrap gap-2">
+        <div className="border-b border-[color:var(--line)] px-4 py-3">
+          <div className="flex flex-wrap gap-2" role="tablist" aria-label="Job detail sections">
             {TABS.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
+                role="tab"
+                id={`tab-${tab.id}`}
+                aria-selected={activeTab === tab.id}
+                aria-controls={`panel-${tab.id}`}
+                tabIndex={activeTab === tab.id ? 0 : -1}
+                onKeyDown={(event) =>
+                  handleTabKeyDown(
+                    event,
+                    TABS.findIndex((item) => item.id === tab.id)
+                  )
+                }
                 className={cn(
-                  'rounded-md border px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] transition',
+                  'rounded-md border px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] transition',
                   activeTab === tab.id
                     ? 'border-[color:color-mix(in_oklch,var(--accent)_38%,var(--line-strong))] bg-[color:color-mix(in_oklch,var(--accent)_18%,transparent)] text-[color:var(--foreground)]'
                     : 'border-[color:var(--line)] text-[color:var(--foreground-muted)] hover:border-[color:var(--line-strong)] hover:text-[color:var(--foreground)]'
@@ -300,7 +338,12 @@ export function JobDetailView({ jobId }: JobDetailViewProps) {
           </div>
         </div>
 
-        <div className="p-5">
+        <div
+          className="p-4"
+          role="tabpanel"
+          id={`panel-${activeTab}`}
+          aria-labelledby={`tab-${activeTab}`}
+        >
           {activeTab === 'overview' && <OverviewTab job={job} />}
           {activeTab === 'stages' && <StagesTasksPanel jobId={jobId} />}
           {activeTab === 'timeline' && <EventsTimeline jobId={jobId} liveEvents={liveEvents} />}

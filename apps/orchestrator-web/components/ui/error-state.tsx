@@ -6,12 +6,12 @@ interface ErrorStateProps {
 
 export function ErrorState({ title = 'Something went wrong', message, onRetry }: ErrorStateProps) {
   return (
-    <div className="console-hairline flex flex-col items-center justify-center gap-4 rounded-xl border border-red-950/70 bg-red-950/20 px-8 py-12 text-center shadow-[0_20px_50px_rgba(20,0,0,0.35)]">
+    <div className="console-hairline flex flex-col items-center justify-center gap-4 rounded-[8px] border border-red-950/70 bg-red-950/20 px-8 py-12 text-center shadow-[0_18px_34px_rgba(20,0,0,0.22)]">
       <span
-        className="flex h-12 w-12 items-center justify-center rounded-lg border border-red-900/70 bg-red-950/60 text-xl text-red-200"
+        className="flex h-10 w-10 items-center justify-center rounded-[4px] border border-red-900/70 bg-red-950/60 text-sm font-mono text-red-200"
         aria-hidden
       >
-        ⚠
+        ERR
       </span>
       <div className="space-y-1">
         <p className="text-base font-semibold text-red-100">{title}</p>
@@ -20,7 +20,7 @@ export function ErrorState({ title = 'Something went wrong', message, onRetry }:
       {onRetry && (
         <button
           onClick={onRetry}
-          className="mt-1 rounded-md border border-red-800/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-red-100 transition hover:border-red-600 hover:bg-red-950/60"
+          className="mt-1 rounded-[4px] border border-red-800/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-red-100 transition hover:border-red-600 hover:bg-red-950/60"
         >
           Retry
         </button>

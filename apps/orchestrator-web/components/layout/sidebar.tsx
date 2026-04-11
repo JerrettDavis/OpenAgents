@@ -133,54 +133,101 @@ const NAV_ITEMS: NavItem[] = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { info } = useSystemInfo();
+  const { info, loading, error } = useSystemInfo();
+  const providersLoaded = info?.providers_loaded.length ?? 0;
+  const workflowsLoaded = info?.workflows_loaded.length ?? 0;
+  const runtimeReady = providersLoaded > 0 && workflowsLoaded > 0;
+  const runtimePartial = !runtimeReady && (providersLoaded > 0 || workflowsLoaded > 0);
+  const runtimeState = error
+    ? 'unavailable'
+    : loading
+      ? 'checking'
+      : runtimeReady
+        ? 'ready'
+        : runtimePartial
+          ? 'partial'
+          : 'empty';
+  const isSettingsActive = pathname.startsWith('/settings');
 
   return (
-    <aside className="console-surface-strong relative m-3 flex h-[calc(100vh-1.5rem)] w-72 shrink-0 flex-col overflow-hidden rounded-xl">
-      <div className="console-hairline flex items-start gap-3 border-b border-[color:var(--line)] px-5 py-5">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-[color:color-mix(in_oklch,var(--line-strong)_42%,transparent)] bg-[color:color-mix(in_oklch,var(--surface-strong)_88%,transparent)] text-sm font-black tracking-[0.16em] text-[color:var(--accent)]">
+    <aside className="relative flex h-full w-64 shrink-0 flex-col overflow-hidden border-r border-[color:var(--line)] bg-[color:color-mix(in_oklch,var(--surface-strong)_96%,black_4%)]">
+      <div className="console-hairline flex items-start gap-3 border-b border-[color:var(--line)] px-4 py-4">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-[color:color-mix(in_oklch,var(--line-strong)_42%,transparent)] bg-[color:color-mix(in_oklch,var(--surface-strong)_88%,transparent)] text-xs font-black tracking-[0.14em] text-[color:var(--accent)]">
           OA
         </div>
         <div className="min-w-0">
           <p className="console-kicker">Control room</p>
-          <p className="mt-1 text-lg font-semibold text-[color:var(--foreground)]">OpenAgents</p>
-          <p className="mt-1 max-w-[14rem] text-sm leading-5 text-[color:var(--foreground-muted)]">
-            Multi-provider orchestration for headless agent workflows.
+          <p className="mt-1 text-base font-semibold text-[color:var(--foreground)]">OpenAgents</p>
+          <p className="mt-1 max-w-[13rem] text-xs leading-5 text-[color:var(--foreground-muted)]">
+            Headless agent orchestration across the required provider pack.
           </p>
         </div>
       </div>
 
-      <div className="px-4 pt-4">
-        <div className="console-surface rounded-lg px-4 py-3">
+      <div className="px-3 pt-3">
+        <div className="border border-[color:var(--line)] bg-black/12 px-3 py-3">
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="console-kicker">Runtime</p>
               <p className="mt-1 text-sm font-semibold text-[color:var(--foreground)]">
-                Headless matrix online
+                {runtimeState === 'ready'
+                  ? 'Fleet ready'
+                  : runtimeState === 'partial'
+                    ? 'Runtime partial'
+                    : runtimeState === 'empty'
+                      ? 'Runtime inventory'
+                      : runtimeState === 'unavailable'
+                        ? 'Runtime unavailable'
+                        : 'Checking runtime'}
               </p>
             </div>
-            <div className="rounded-md border border-emerald-800/80 bg-emerald-950/60 px-2.5 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-emerald-200">
-              Ready
+            <div
+              className={cn(
+                'rounded-[4px] px-2.5 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.08em]',
+                runtimeState === 'ready'
+                  ? 'border border-emerald-800/80 bg-emerald-950/60 text-emerald-200'
+                  : runtimeState === 'partial'
+                    ? 'border border-amber-800/80 bg-amber-950/60 text-amber-200'
+                    : runtimeState === 'unavailable'
+                      ? 'border border-red-900/70 bg-red-950/30 text-red-200'
+                      : 'border border-[color:var(--line)] bg-black/10 text-[color:var(--foreground-muted)]'
+              )}
+            >
+              {runtimeState === 'ready'
+                ? 'Ready'
+                : runtimeState === 'partial'
+                  ? 'Partial'
+                  : runtimeState === 'empty'
+                    ? 'Empty'
+                    : runtimeState === 'unavailable'
+                      ? 'Offline'
+                      : 'Checking'}
             </div>
           </div>
-          <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
-            <div className="rounded-2xl border border-[color:var(--line)] bg-black/10 px-3 py-2">
+          <div className="mt-3 grid grid-cols-2 divide-x divide-[color:var(--line)] border border-[color:var(--line)] bg-[color:color-mix(in_oklch,var(--surface)_72%,black_28%)] text-sm">
+            <div className="px-3 py-2">
               <p className="console-label">Providers</p>
-              <p className="mt-1 font-display text-xl font-semibold text-[color:var(--foreground)]">
-                {info?.providers_loaded.length ?? '—'}
+              <p
+                data-testid="sidebar-providers-count"
+                className="mt-1 text-lg font-semibold text-[color:var(--foreground)]"
+              >
+                {providersLoaded}
               </p>
             </div>
-            <div className="rounded-2xl border border-[color:var(--line)] bg-black/10 px-3 py-2">
+            <div className="px-3 py-2">
               <p className="console-label">Workflows</p>
-              <p className="mt-1 font-display text-xl font-semibold text-[color:var(--foreground)]">
-                {info?.workflows_loaded.length ?? '—'}
+              <p
+                data-testid="sidebar-workflows-count"
+                className="mt-1 text-lg font-semibold text-[color:var(--foreground)]"
+              >
+                {workflowsLoaded}
               </p>
             </div>
           </div>
         </div>
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-4 py-4" aria-label="Main">
+      <nav className="flex-1 overflow-y-auto px-3 py-4" aria-label="Main">
         <div className="mb-3 px-2">
           <p className="console-kicker">Operate</p>
         </div>
@@ -195,7 +242,7 @@ export function Sidebar() {
                 <Link
                   href={item.href}
                   className={cn(
-                    'group flex items-center gap-3 rounded-lg px-3.5 py-3 text-sm font-medium transition',
+                    'group flex items-center gap-3 rounded-[4px] px-3 py-2.5 text-sm font-medium transition',
                     isActive
                       ? 'border border-[color:color-mix(in_oklch,var(--line-strong)_45%,transparent)] bg-[color:color-mix(in_oklch,var(--surface-strong)_86%,transparent)] text-[color:var(--foreground)] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]'
                       : 'border border-transparent text-[color:var(--foreground-soft)] hover:border-[color:var(--line)] hover:bg-[color:color-mix(in_oklch,var(--surface)_74%,transparent)] hover:text-[color:var(--foreground)]'
@@ -204,7 +251,7 @@ export function Sidebar() {
                 >
                   <span
                     className={cn(
-                      'flex h-9 w-9 shrink-0 items-center justify-center rounded-md border transition',
+                      'flex h-9 w-9 shrink-0 items-center justify-center rounded-[4px] border transition',
                       isActive
                         ? 'border-[color:color-mix(in_oklch,var(--line-strong)_52%,transparent)] bg-[color:color-mix(in_oklch,var(--accent)_18%,transparent)] text-[color:var(--accent)]'
                         : 'border-[color:var(--line)] bg-black/10 text-[color:var(--foreground-muted)] group-hover:border-[color:color-mix(in_oklch,var(--line-strong)_36%,transparent)] group-hover:text-[color:var(--foreground-soft)]'
@@ -214,7 +261,7 @@ export function Sidebar() {
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate">{item.label}</span>
-                    <span className="mt-0.5 block text-xs text-[color:var(--foreground-muted)]">
+                    <span className="mt-0.5 block text-[11px] leading-4 text-[color:var(--foreground-muted)]">
                       {item.href === '/jobs' && 'Queue, watch, and control runs'}
                       {item.href === '/workflows' && 'Inspect available orchestration plans'}
                       {item.href === '/agents' && 'Review provider inventory and support'}
@@ -233,9 +280,22 @@ export function Sidebar() {
           </div>
           <Link
             href="/settings"
-            className="group flex items-center gap-3 rounded-lg border border-transparent px-3.5 py-3 text-sm font-medium text-[color:var(--foreground-soft)] transition hover:border-[color:var(--line)] hover:bg-[color:color-mix(in_oklch,var(--surface)_74%,transparent)] hover:text-[color:var(--foreground)]"
+            className={cn(
+              'group flex items-center gap-3 rounded-[4px] px-3 py-2.5 text-sm font-medium transition',
+              isSettingsActive
+                ? 'border border-[color:color-mix(in_oklch,var(--line-strong)_45%,transparent)] bg-[color:color-mix(in_oklch,var(--surface-strong)_86%,transparent)] text-[color:var(--foreground)] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]'
+                : 'border border-transparent text-[color:var(--foreground-soft)] hover:border-[color:var(--line)] hover:bg-[color:color-mix(in_oklch,var(--surface)_74%,transparent)] hover:text-[color:var(--foreground)]'
+            )}
+            aria-current={isSettingsActive ? 'page' : undefined}
           >
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[color:var(--line)] bg-black/10 text-[color:var(--foreground-muted)] transition group-hover:border-[color:color-mix(in_oklch,var(--line-strong)_36%,transparent)] group-hover:text-[color:var(--foreground-soft)]">
+            <span
+              className={cn(
+                'flex h-9 w-9 shrink-0 items-center justify-center rounded-[4px] border transition',
+                isSettingsActive
+                  ? 'border-[color:color-mix(in_oklch,var(--line-strong)_52%,transparent)] bg-[color:color-mix(in_oklch,var(--accent)_18%,transparent)] text-[color:var(--accent)]'
+                  : 'border-[color:var(--line)] bg-black/10 text-[color:var(--foreground-muted)] group-hover:border-[color:color-mix(in_oklch,var(--line-strong)_36%,transparent)] group-hover:text-[color:var(--foreground-soft)]'
+              )}
+            >
               <IconGear />
             </span>
             <span className="min-w-0 flex-1">
@@ -248,11 +308,16 @@ export function Sidebar() {
         </div>
       </nav>
 
-      <div className="border-t border-[color:var(--line)] px-5 py-4 text-xs text-[color:var(--foreground-muted)]">
-        <p className="console-kicker">Publish bar</p>
+      <div className="border-t border-[color:var(--line)] bg-black/12 px-4 py-3 text-xs text-[color:var(--foreground-muted)]">
+        <p className="console-kicker">Matrix</p>
         <p className="mt-2 leading-5">
-          Claude Code, OpenCode, Codex, Gemini, and Copilot are treated as first-class headless
-          runtimes across the control room.
+          {runtimeState === 'unavailable'
+            ? 'System info is unavailable right now.'
+            : runtimeState === 'partial'
+              ? `${providersLoaded} providers and ${workflowsLoaded} workflows are loaded. Enable both inventories to launch jobs cleanly.`
+              : runtimeState === 'empty'
+                ? 'No providers or workflows are loaded yet.'
+                : `${providersLoaded} providers loaded across ${workflowsLoaded} workflows.`}
         </p>
       </div>
     </aside>

@@ -1,18 +1,18 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 :root {
-  --background: oklch(0.145 0.006 286);
-  --background-strong: oklch(0.118 0.005 286);
-  --surface: oklch(0.19 0.006 286);
-  --surface-strong: oklch(0.225 0.008 286);
-  --surface-soft: oklch(0.2 0.005 286 / 0.92);
-  --line: oklch(0.29 0.006 286 / 0.92);
-  --line-strong: oklch(0.39 0.01 286 / 1);
-  --foreground: oklch(0.97 0.002 286);
-  --foreground-soft: oklch(0.82 0.004 286);
-  --foreground-muted: oklch(0.65 0.004 286);
-  --accent: oklch(0.62 0.17 259);
-  --accent-soft: oklch(0.56 0.13 258);
+  --background: oklch(0.132 0.004 255);
+  --background-strong: oklch(0.108 0.004 255);
+  --surface: oklch(0.175 0.004 255);
+  --surface-strong: oklch(0.205 0.005 255);
+  --surface-soft: oklch(0.19 0.004 255 / 0.94);
+  --line: oklch(0.285 0.006 255 / 0.95);
+  --line-strong: oklch(0.395 0.01 255);
+  --foreground: oklch(0.972 0.002 255);
+  --foreground-soft: oklch(0.848 0.004 255);
+  --foreground-muted: oklch(0.655 0.004 255);
+  --accent: oklch(0.645 0.155 255);
+  --accent-soft: oklch(0.575 0.11 255);
   --danger: oklch(0.6 0.19 28);
 }
 
@@ -20,7 +20,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-body);
-  --font-display: var(--font-display);
+  --font-display: var(--font-body);
   --font-mono: var(--font-geist-mono);
 }
 
@@ -38,20 +38,25 @@ html {
 body {
   min-height: 100vh;
   background:
-    radial-gradient(circle at top, color-mix(in oklch, var(--accent) 10%, transparent) 0, transparent 28%),
+    linear-gradient(180deg, color-mix(in oklch, var(--accent) 5%, transparent) 0, transparent 18%),
     linear-gradient(180deg, var(--background) 0%, var(--background-strong) 100%);
   color: var(--foreground);
   font-family: var(--font-body), sans-serif;
-  letter-spacing: -0.01em;
+  line-height: 1.5;
+  letter-spacing: -0.008em;
+  text-rendering: optimizeLegibility;
 }
 
 body::before {
-  content: "";
+  content: '';
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent 22%);
-  opacity: 1;
+  background:
+    linear-gradient(90deg, color-mix(in oklch, var(--line) 40%, transparent) 1px, transparent 1px),
+    linear-gradient(180deg, color-mix(in oklch, var(--line) 26%, transparent) 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: 0.14;
 }
 
 h1,
@@ -61,7 +66,7 @@ h4,
 h5,
 h6 {
   font-family: var(--font-display), sans-serif;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.025em;
 }
 
 button,
@@ -69,6 +74,11 @@ input,
 select,
 textarea {
   font: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid color-mix(in oklch, var(--accent) 80%, white 8%);
+  outline-offset: 2px;
 }
 
 ::selection {
@@ -87,7 +97,7 @@ textarea {
 }
 
 *::-webkit-scrollbar-thumb {
-  border-radius: 999px;
+  border-radius: 2px;
   border: 2px solid transparent;
   background: color-mix(in oklch, var(--line-strong) 48%, transparent);
   background-clip: padding-box;
@@ -95,14 +105,18 @@ textarea {
 
 .console-surface {
   border: 1px solid var(--line);
-  background: var(--surface);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02), 0 10px 30px rgba(0, 0, 0, 0.18);
+  background: color-mix(in oklch, var(--surface) 96%, black 4%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.02),
+    0 8px 18px rgba(0, 0, 0, 0.14);
 }
 
 .console-surface-strong {
   border: 1px solid var(--line);
-  background: var(--surface-strong);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 14px 36px rgba(0, 0, 0, 0.2);
+  background: color-mix(in oklch, var(--surface-strong) 96%, black 4%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.025),
+    0 10px 22px rgba(0, 0, 0, 0.16);
 }
 
 .console-hairline {
@@ -110,16 +124,16 @@ textarea {
 }
 
 .console-hairline::before {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0 0 auto;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
-  opacity: 1;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+  opacity: 0.9;
 }
 
 .console-kicker {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -127,7 +141,7 @@ textarea {
 }
 
 .console-label {
-  font-size: 0.75rem;
+  font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;

@@ -1,19 +1,16 @@
 import type { Metadata } from 'next';
-import { Geist_Mono, Manrope, Space_Grotesk } from 'next/font/google';
+import { IBM_Plex_Sans, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 
-const bodyFont = Manrope({
+const bodyFont = IBM_Plex_Sans({
   variable: '--font-body',
+  weight: ['400', '500', '600', '700'],
   subsets: ['latin'],
 });
 
-const geistMono = Geist_Mono({
+const monoFont = JetBrains_Mono({
   variable: '--font-geist-mono',
-  subsets: ['latin'],
-});
-
-const displayFont = Space_Grotesk({
-  variable: '--font-display',
+  weight: ['400', '500', '600'],
   subsets: ['latin'],
 });
 
@@ -31,11 +28,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${bodyFont.variable} ${displayFont.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="flex min-h-full flex-col">{children}</body>
+    <html lang="en" className={`${bodyFont.variable} ${monoFont.variable} h-full antialiased`}>
+      <body className="flex min-h-full flex-col">
+        <a
+          href="#app-main"
+          className="absolute left-4 top-4 z-50 -translate-y-16 rounded-[4px] border border-[color:var(--line-strong)] bg-[color:var(--surface-strong)] px-3 py-2 text-sm text-[color:var(--foreground)] transition focus:translate-y-0 focus:outline-none"
+        >
+          Skip to content
+        </a>
+        {children}
+      </body>
     </html>
   );
 }

@@ -43,15 +43,15 @@ test('full workflow surfaces render and job flow is operable', async ({
   await expect(page.getByRole('heading', { name: jobTitle })).toBeVisible();
   await shot('02-job-detail-overview');
 
-  await page.getByRole('button', { name: /stages & tasks/i }).click();
+  await page.getByRole('tab', { name: /stages & tasks/i }).click();
   await expect(page.getByText(/planning|execution/i).first()).toBeVisible();
   await shot('03-job-detail-stages');
 
-  await page.getByRole('button', { name: /timeline/i }).click();
+  await page.getByRole('tab', { name: /timeline/i }).click();
   await expect(page.getByText(/timeline|event|no events/i).first()).toBeVisible();
   await shot('04-job-detail-timeline');
 
-  await page.getByRole('button', { name: /logs/i }).click();
+  await page.getByRole('tab', { name: /logs/i }).click();
   await expect(page.locator('pre, .font-mono').first()).toBeVisible();
   await shot('05-job-detail-logs');
 

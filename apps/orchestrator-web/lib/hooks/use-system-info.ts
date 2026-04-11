@@ -11,6 +11,14 @@ export interface SystemInfo {
   workspace_root: string;
 }
 
+const SYSTEM_INFO_REFRESH_EVENT = 'openagents:system-info-refresh';
+
+export function requestSystemInfoRefresh() {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event(SYSTEM_INFO_REFRESH_EVENT));
+  }
+}
+
 export function useSystemInfo() {
   const [info, setInfo] = useState<SystemInfo | null>(null);
   const [loading, setLoading] = useState(true);
@@ -37,6 +45,14 @@ export function useSystemInfo() {
 
   useEffect(() => {
     void fetchInfo();
+  }, [fetchInfo]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleRefresh = () => void fetchInfo();
+    window.addEventListener(SYSTEM_INFO_REFRESH_EVENT, handleRefresh);
+    return () => window.removeEventListener(SYSTEM_INFO_REFRESH_EVENT, handleRefresh);
   }, [fetchInfo]);
 
   return { info, loading, error, refetch: fetchInfo };
