@@ -1,8 +1,8 @@
-import type { Metadata } from "next";
-import { JobsView } from "@/components/jobs/jobs-view";
+import type { Metadata } from 'next';
+import { JobsView } from '@/components/jobs/jobs-view';
 
 export const metadata: Metadata = {
-  title: "Jobs",
+  title: 'Jobs',
 };
 
 export default function JobsPage() {

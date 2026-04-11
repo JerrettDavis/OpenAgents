@@ -1,6 +1,6 @@
-import type { ApiJobDetail } from "@/lib/types/api";
-import { JobStateBadge, JobOutcomeBadge, ConnectionBadge } from "@/components/jobs/job-state-badge";
-import { formatDateTime, formatElapsed } from "@/lib/utils/format";
+import type { ApiJobDetail } from '@/lib/types/api';
+import { JobStateBadge, JobOutcomeBadge, ConnectionBadge } from '@/components/jobs/job-state-badge';
+import { formatDateTime, formatElapsed } from '@/lib/utils/format';
 
 interface SummaryCardProps {
   label: string;
@@ -40,23 +40,13 @@ function CountBar({ label, completed, running, notStarted, total }: CountBarProp
       {/* Progress bar */}
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-800">
         <div className="flex h-full">
-          <div
-            className="h-full bg-emerald-500 transition-all"
-            style={{ width: `${pctDone}%` }}
-          />
-          <div
-            className="h-full bg-blue-500 transition-all"
-            style={{ width: `${pctRunning}%` }}
-          />
+          <div className="h-full bg-emerald-500 transition-all" style={{ width: `${pctDone}%` }} />
+          <div className="h-full bg-blue-500 transition-all" style={{ width: `${pctRunning}%` }} />
         </div>
       </div>
       <div className="flex items-center gap-3 text-xs text-zinc-500">
-        {completed > 0 && (
-          <span className="text-emerald-500">{completed} done</span>
-        )}
-        {running > 0 && (
-          <span className="text-blue-400">{running} running</span>
-        )}
+        {completed > 0 && <span className="text-emerald-500">{completed} done</span>}
+        {running > 0 && <span className="text-blue-400">{running} running</span>}
         {notStarted > 0 && <span>{notStarted} pending</span>}
       </div>
     </div>
@@ -79,32 +69,20 @@ export function JobSummaryCards({ job }: JobSummaryCardsProps) {
           </div>
         }
       />
-      <SummaryCard
-        label="Connection"
-        value={<ConnectionBadge status={job.connection_status} />}
-      />
+      <SummaryCard label="Connection" value={<ConnectionBadge status={job.connection_status} />} />
       <SummaryCard label="Workflow" value={job.workflow_id} />
       <SummaryCard label="Provider" value={job.provider_id} />
       {job.model && <SummaryCard label="Model" value={job.model} />}
-      <SummaryCard
-        label="Started"
-        value={formatDateTime(job.started_at_utc) || "—"}
-      />
+      <SummaryCard label="Started" value={formatDateTime(job.started_at_utc) || '—'} />
       <SummaryCard
         label="Duration"
-        value={
-          job.started_at_utc
-            ? formatElapsed(job.started_at_utc, job.finished_at_utc)
-            : "—"
-        }
+        value={job.started_at_utc ? formatElapsed(job.started_at_utc, job.finished_at_utc) : '—'}
       />
       {job.workspace_path && (
         <SummaryCard
           label="Workspace"
           value={
-            <span className="break-all font-mono text-xs text-zinc-400">
-              {job.workspace_path}
-            </span>
+            <span className="break-all font-mono text-xs text-zinc-400">{job.workspace_path}</span>
           }
         />
       )}

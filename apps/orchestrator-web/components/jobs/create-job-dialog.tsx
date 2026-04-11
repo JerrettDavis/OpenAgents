@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { jobsApi, ApiError } from "@/lib/api/client";
-import { useWorkflows } from "@/lib/hooks/use-workflows";
-import { useProviders } from "@/lib/hooks/use-providers";
-import type { CreateJobFormValues } from "@/lib/types/domain";
-import { Spinner } from "@/components/ui/spinner";
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { jobsApi, ApiError } from '@/lib/api/client';
+import { useWorkflows } from '@/lib/hooks/use-workflows';
+import { useProviders } from '@/lib/hooks/use-providers';
+import type { CreateJobFormValues } from '@/lib/types/domain';
+import { Spinner } from '@/components/ui/spinner';
 
 interface CreateJobDialogProps {
   open: boolean;
@@ -15,19 +15,15 @@ interface CreateJobDialogProps {
 }
 
 const EMPTY_FORM: CreateJobFormValues = {
-  title: "",
-  description: "",
-  workflow_id: "",
-  provider_id: "claude-code",
-  model: "",
-  workspace_path: "",
+  title: '',
+  description: '',
+  workflow_id: '',
+  provider_id: 'claude-code',
+  model: '',
+  workspace_path: '',
 };
 
-export function CreateJobDialog({
-  open,
-  onClose,
-  onCreated,
-}: CreateJobDialogProps) {
+export function CreateJobDialog({ open, onClose, onCreated }: CreateJobDialogProps) {
   const router = useRouter();
   const { workflows, loading: loadingWorkflows } = useWorkflows();
   const { providers, loading: loadingProviders } = useProviders();
@@ -52,10 +48,7 @@ export function CreateJobDialog({
 
   if (!open) return null;
 
-  function update<K extends keyof CreateJobFormValues>(
-    key: K,
-    value: CreateJobFormValues[K]
-  ) {
+  function update<K extends keyof CreateJobFormValues>(key: K, value: CreateJobFormValues[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
     setSubmitError(null);
   }
@@ -69,19 +62,19 @@ export function CreateJobDialog({
     const workspace_path = form.workspace_path.trim();
 
     if (!title) {
-      setSubmitError("Title is required.");
+      setSubmitError('Title is required.');
       return;
     }
     if (!workflow_id) {
-      setSubmitError("Workflow is required.");
+      setSubmitError('Workflow is required.');
       return;
     }
     if (!provider_id) {
-      setSubmitError("Provider is required.");
+      setSubmitError('Provider is required.');
       return;
     }
     if (!workspace_path) {
-      setSubmitError("Workspace path is required.");
+      setSubmitError('Workspace path is required.');
       return;
     }
 
@@ -110,7 +103,7 @@ export function CreateJobDialog({
           ? err.message
           : err instanceof Error
             ? err.message
-            : "Failed to create job";
+            : 'Failed to create job';
       setSubmitError(msg);
     } finally {
       setSubmitting(false);
@@ -136,10 +129,7 @@ export function CreateJobDialog({
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-zinc-800 px-6 py-4">
-          <h2
-            id="create-job-title"
-            className="text-sm font-semibold text-zinc-100"
-          >
+          <h2 id="create-job-title" className="text-sm font-semibold text-zinc-100">
             New Job
           </h2>
           <button
@@ -163,7 +153,7 @@ export function CreateJobDialog({
               <input
                 type="text"
                 value={form.title}
-                onChange={(e) => update("title", e.target.value)}
+                onChange={(e) => update('title', e.target.value)}
                 placeholder="e.g. Plan the OpenAgents repo"
                 autoFocus
                 className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 outline-none transition-colors focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30"
@@ -177,7 +167,7 @@ export function CreateJobDialog({
               </span>
               <textarea
                 value={form.description}
-                onChange={(e) => update("description", e.target.value)}
+                onChange={(e) => update('description', e.target.value)}
                 placeholder="What should this agent run do? Include goals, constraints, and expected output."
                 rows={2}
                 className="w-full resize-none rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 outline-none transition-colors focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30"
@@ -192,14 +182,12 @@ export function CreateJobDialog({
               {loadingWorkflows ? (
                 <div className="flex items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2">
                   <Spinner size="xs" />
-                  <span className="text-xs text-zinc-500">
-                    Loading workflows…
-                  </span>
+                  <span className="text-xs text-zinc-500">Loading workflows…</span>
                 </div>
               ) : workflows.length > 0 ? (
                 <select
                   value={form.workflow_id}
-                  onChange={(e) => update("workflow_id", e.target.value)}
+                  onChange={(e) => update('workflow_id', e.target.value)}
                   className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-zinc-100 outline-none transition-colors focus:border-indigo-500"
                 >
                   <option value="">Select workflow…</option>
@@ -214,7 +202,7 @@ export function CreateJobDialog({
                 <input
                   type="text"
                   value={form.workflow_id}
-                  onChange={(e) => update("workflow_id", e.target.value)}
+                  onChange={(e) => update('workflow_id', e.target.value)}
                   placeholder="e.g. planning"
                   className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 outline-none transition-colors focus:border-indigo-500"
                 />
@@ -235,7 +223,7 @@ export function CreateJobDialog({
                 ) : providers.length > 0 ? (
                   <select
                     value={form.provider_id}
-                    onChange={(e) => update("provider_id", e.target.value)}
+                    onChange={(e) => update('provider_id', e.target.value)}
                     className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-zinc-100 outline-none transition-colors focus:border-indigo-500"
                   >
                     {providers.map((p) => (
@@ -248,20 +236,18 @@ export function CreateJobDialog({
                   <input
                     type="text"
                     value={form.provider_id}
-                    onChange={(e) => update("provider_id", e.target.value)}
+                    onChange={(e) => update('provider_id', e.target.value)}
                     placeholder="e.g. claude-code"
                     className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 outline-none transition-colors focus:border-indigo-500"
                   />
                 )}
               </label>
               <label className="block">
-                <span className="mb-1.5 block text-xs font-medium text-zinc-400">
-                  Model
-                </span>
+                <span className="mb-1.5 block text-xs font-medium text-zinc-400">Model</span>
                 <input
                   type="text"
                   value={form.model}
-                  onChange={(e) => update("model", e.target.value)}
+                  onChange={(e) => update('model', e.target.value)}
                   placeholder="e.g. claude-sonnet-4-5"
                   className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 outline-none transition-colors focus:border-indigo-500"
                 />
@@ -276,7 +262,7 @@ export function CreateJobDialog({
               <input
                 type="text"
                 value={form.workspace_path}
-                onChange={(e) => update("workspace_path", e.target.value)}
+                onChange={(e) => update('workspace_path', e.target.value)}
                 placeholder="/workspace/my-project"
                 className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 font-mono text-sm text-zinc-100 placeholder-zinc-600 outline-none transition-colors focus:border-indigo-500"
               />
@@ -306,7 +292,7 @@ export function CreateJobDialog({
               className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-60"
             >
               {submitting && <Spinner size="xs" />}
-              {submitting ? "Creating…" : "Create Job"}
+              {submitting ? 'Creating…' : 'Create Job'}
             </button>
           </div>
         </form>

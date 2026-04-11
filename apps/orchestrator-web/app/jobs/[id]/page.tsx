@@ -1,8 +1,8 @@
-import type { Metadata } from "next";
-import { JobDetailView } from "@/components/jobs/job-detail-view";
+import type { Metadata } from 'next';
+import { JobDetailView } from '@/components/jobs/job-detail-view';
 
 export const metadata: Metadata = {
-  title: "Job Detail",
+  title: 'Job Detail',
 };
 
 interface JobDetailPageProps {

@@ -1,40 +1,40 @@
-"use client";
+'use client';
 
-import { useJobEvents } from "@/lib/hooks/use-job-events";
-import { Spinner } from "@/components/ui/spinner";
-import { EmptyState } from "@/components/ui/empty-state";
-import { ErrorState } from "@/components/ui/error-state";
-import { Badge } from "@/components/ui/badge";
-import { formatDateTime, formatRelativeTime } from "@/lib/utils/format";
-import { cn } from "@/lib/utils/cn";
-import type { ApiEvent, ApiEventSeverity } from "@/lib/types/api";
+import { useJobEvents } from '@/lib/hooks/use-job-events';
+import { Spinner } from '@/components/ui/spinner';
+import { EmptyState } from '@/components/ui/empty-state';
+import { ErrorState } from '@/components/ui/error-state';
+import { Badge } from '@/components/ui/badge';
+import { formatDateTime, formatRelativeTime } from '@/lib/utils/format';
+import { cn } from '@/lib/utils/cn';
+import type { ApiEvent, ApiEventSeverity } from '@/lib/types/api';
 
 // ── Severity → badge variant ──────────────────────────────────────────
 
 const SEVERITY_VARIANT: Record<
   ApiEventSeverity,
-  NonNullable<React.ComponentProps<typeof Badge>["variant"]>
+  NonNullable<React.ComponentProps<typeof Badge>['variant']>
 > = {
-  info: "info",
-  warning: "warning",
-  error: "error",
-  critical: "red",
+  info: 'info',
+  warning: 'warning',
+  error: 'error',
+  critical: 'red',
 };
 
 const EVENT_TYPE_COLOR: Record<string, string> = {
-  "job.": "text-indigo-400",
-  "stage.": "text-blue-400",
-  "task.": "text-teal-400",
-  "agent.": "text-violet-400",
-  "log.": "text-zinc-500",
-  heartbeat: "text-zinc-600",
+  'job.': 'text-indigo-400',
+  'stage.': 'text-blue-400',
+  'task.': 'text-teal-400',
+  'agent.': 'text-violet-400',
+  'log.': 'text-zinc-500',
+  heartbeat: 'text-zinc-600',
 };
 
 function eventTypeColor(type: string): string {
   for (const [prefix, cls] of Object.entries(EVENT_TYPE_COLOR)) {
     if (type.startsWith(prefix)) return cls;
   }
-  return "text-zinc-400";
+  return 'text-zinc-400';
 }
 
 // ── Single event row ──────────────────────────────────────────────────
@@ -54,30 +54,23 @@ function EventRow({ event }: { event: ApiEvent }) {
       {/* Dot */}
       <span
         className={cn(
-          "mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full",
-          event.severity === "error" || event.severity === "critical"
-            ? "bg-red-500"
-            : event.severity === "warning"
-              ? "bg-amber-500"
-              : "bg-zinc-600"
+          'mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full',
+          event.severity === 'error' || event.severity === 'critical'
+            ? 'bg-red-500'
+            : event.severity === 'warning'
+              ? 'bg-amber-500'
+              : 'bg-zinc-600'
         )}
       />
 
       {/* Main content */}
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
-          <span
-            className={cn(
-              "font-mono text-xs font-medium",
-              eventTypeColor(event.event_type)
-            )}
-          >
+          <span className={cn('font-mono text-xs font-medium', eventTypeColor(event.event_type))}>
             {event.event_type}
           </span>
-          {event.severity !== "info" && (
-            <Badge variant={SEVERITY_VARIANT[event.severity]}>
-              {event.severity}
-            </Badge>
+          {event.severity !== 'info' && (
+            <Badge variant={SEVERITY_VARIANT[event.severity]}>{event.severity}</Badge>
           )}
         </div>
         <p className="mt-0.5 text-xs text-zinc-300">{event.title}</p>
@@ -105,12 +98,8 @@ interface EventsTimelineProps {
   liveEvents?: ApiEvent[];
 }
 
-export function EventsTimeline({
-  jobId,
-  liveEvents = [],
-}: EventsTimelineProps) {
-  const { events, loading, error, refetch, prependEvent } =
-    useJobEvents(jobId);
+export function EventsTimeline({ jobId, liveEvents = [] }: EventsTimelineProps) {
+  const { events, loading, error, refetch, prependEvent } = useJobEvents(jobId);
 
   // Wire SSE-pushed events into the hook's dedup state
   // (called from parent via a ref in production; here we accept prop for simplicity)

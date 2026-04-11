@@ -1,59 +1,49 @@
-"use client";
+'use client';
 
-import { useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { useJob } from "@/lib/hooks/use-job";
-import { useJobSse } from "@/lib/hooks/use-job-sse";
-import { jobsApi, ApiError } from "@/lib/api/client";
-import { ACTIVE_JOB_STATES } from "@/lib/types/domain";
-import { JobSummaryCards } from "@/components/jobs/job-summary-cards";
-import { StagesTasksPanel } from "@/components/jobs/stages-tasks-panel";
-import { LogsPanel } from "@/components/jobs/logs-panel";
-import { EventsTimeline } from "@/components/jobs/events-timeline";
-import { JobStateBadge, JobOutcomeBadge } from "@/components/jobs/job-state-badge";
-import { Spinner } from "@/components/ui/spinner";
-import { ErrorState } from "@/components/ui/error-state";
-import { Badge } from "@/components/ui/badge";
-import { formatElapsed } from "@/lib/utils/format";
-import { cn } from "@/lib/utils/cn";
-import type { ApiJobDetail, ApiLogLine, ApiEvent } from "@/lib/types/api";
+import { useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import { useJob } from '@/lib/hooks/use-job';
+import { useJobSse } from '@/lib/hooks/use-job-sse';
+import { jobsApi, ApiError } from '@/lib/api/client';
+import { ACTIVE_JOB_STATES } from '@/lib/types/domain';
+import { JobSummaryCards } from '@/components/jobs/job-summary-cards';
+import { StagesTasksPanel } from '@/components/jobs/stages-tasks-panel';
+import { LogsPanel } from '@/components/jobs/logs-panel';
+import { EventsTimeline } from '@/components/jobs/events-timeline';
+import { JobStateBadge, JobOutcomeBadge } from '@/components/jobs/job-state-badge';
+import { Spinner } from '@/components/ui/spinner';
+import { ErrorState } from '@/components/ui/error-state';
+import { Badge } from '@/components/ui/badge';
+import { formatElapsed } from '@/lib/utils/format';
+import { cn } from '@/lib/utils/cn';
+import type { ApiJobDetail, ApiLogLine, ApiEvent } from '@/lib/types/api';
 
 // ── Tabs ──────────────────────────────────────────────────────────────
 
-type TabId = "overview" | "stages" | "timeline" | "logs";
+type TabId = 'overview' | 'stages' | 'timeline' | 'logs';
 
 const TABS: Array<{ id: TabId; label: string }> = [
-  { id: "overview", label: "Overview" },
-  { id: "stages", label: "Stages & Tasks" },
-  { id: "timeline", label: "Timeline" },
-  { id: "logs", label: "Logs" },
+  { id: 'overview', label: 'Overview' },
+  { id: 'stages', label: 'Stages & Tasks' },
+  { id: 'timeline', label: 'Timeline' },
+  { id: 'logs', label: 'Logs' },
 ];
 
 // ── Action buttons ────────────────────────────────────────────────────
 
-function JobActions({
-  job,
-  onRefresh,
-}: {
-  job: ApiJobDetail;
-  onRefresh: () => void;
-}) {
+function JobActions({ job, onRefresh }: { job: ApiJobDetail; onRefresh: () => void }) {
   const [actionPending, setActionPending] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const router = useRouter();
 
-  async function doAction(
-    name: string,
-    fn: () => Promise<unknown>
-  ) {
+  async function doAction(name: string, fn: () => Promise<unknown>) {
     setActionPending(name);
     setActionError(null);
     try {
       await fn();
       onRefresh();
     } catch (err) {
-      const msg =
-        err instanceof ApiError ? err.message : "Action failed";
+      const msg = err instanceof ApiError ? err.message : 'Action failed';
       setActionError(msg);
     } finally {
       setActionPending(null);
@@ -62,61 +52,51 @@ function JobActions({
 
   return (
     <div className="flex items-center gap-2">
-      {actionError && (
-        <span className="text-xs text-red-400">{actionError}</span>
-      )}
+      {actionError && <span className="text-xs text-red-400">{actionError}</span>}
 
-      {job.state === "Pending" && (
+      {job.state === 'Pending' && (
         <button
           disabled={!!actionPending}
-          onClick={() =>
-            void doAction("start", () => jobsApi.start(job.id))
-          }
+          onClick={() => void doAction('start', () => jobsApi.start(job.id))}
           className="flex items-center gap-1.5 rounded-lg bg-emerald-700 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-emerald-600 disabled:opacity-50"
         >
-          {actionPending === "start" && <Spinner size="xs" />}
-          ▶ Start
+          {actionPending === 'start' && <Spinner size="xs" />}▶ Start
         </button>
       )}
 
-      {(job.state === "Running" || job.state === "Paused") && (
+      {(job.state === 'Running' || job.state === 'Paused') && (
         <button
           disabled={!!actionPending}
-          onClick={() =>
-            void doAction("stop", () => jobsApi.stop(job.id))
-          }
+          onClick={() => void doAction('stop', () => jobsApi.stop(job.id))}
           className="flex items-center gap-1.5 rounded-lg border border-red-800 px-3 py-1.5 text-xs font-medium text-red-300 transition-colors hover:border-red-600 hover:text-red-200 disabled:opacity-50"
         >
-          {actionPending === "stop" && <Spinner size="xs" />}
-          ■ Stop
+          {actionPending === 'stop' && <Spinner size="xs" />}■ Stop
         </button>
       )}
 
-      {(job.state === "Completed" || job.state === "Error") && (
+      {(job.state === 'Completed' || job.state === 'Error') && (
         <button
           disabled={!!actionPending}
-          onClick={() =>
-            void doAction("archive", () => jobsApi.archive(job.id))
-          }
+          onClick={() => void doAction('archive', () => jobsApi.archive(job.id))}
           className="flex items-center gap-1.5 rounded-lg border border-zinc-700 px-3 py-1.5 text-xs font-medium text-zinc-400 transition-colors hover:border-zinc-600 hover:text-zinc-200 disabled:opacity-50"
         >
-          {actionPending === "archive" && <Spinner size="xs" />}
+          {actionPending === 'archive' && <Spinner size="xs" />}
           Archive
         </button>
       )}
 
-      {job.state === "Archived" && (
+      {job.state === 'Archived' && (
         <button
           disabled={!!actionPending}
           onClick={() =>
-            void doAction("delete", async () => {
+            void doAction('delete', async () => {
               await jobsApi.delete(job.id);
-              router.push("/jobs");
+              router.push('/jobs');
             })
           }
           className="flex items-center gap-1.5 rounded-lg border border-red-900 px-3 py-1.5 text-xs font-medium text-red-400 transition-colors hover:border-red-700 hover:text-red-300 disabled:opacity-50"
         >
-          {actionPending === "delete" && <Spinner size="xs" />}
+          {actionPending === 'delete' && <Spinner size="xs" />}
           Delete
         </button>
       )}
@@ -135,19 +115,15 @@ function JobActions({
 
 // ── SSE connection badge ──────────────────────────────────────────────
 
-function SseBadge({
-  state,
-}: {
-  state: "connecting" | "connected" | "disconnected" | "error";
-}) {
-  if (state === "connected") {
+function SseBadge({ state }: { state: 'connecting' | 'connected' | 'disconnected' | 'error' }) {
+  if (state === 'connected') {
     return (
       <Badge variant="success" dot>
         Live
       </Badge>
     );
   }
-  if (state === "connecting") {
+  if (state === 'connecting') {
     return <Badge variant="info">Connecting…</Badge>;
   }
   return null; // Don't show badge for terminal jobs
@@ -160,7 +136,7 @@ interface JobDetailViewProps {
 }
 
 export function JobDetailView({ jobId }: JobDetailViewProps) {
-  const [activeTab, setActiveTab] = useState<TabId>("overview");
+  const [activeTab, setActiveTab] = useState<TabId>('overview');
 
   const { job, loading, error, notFound, refetch, updateJob } = useJob(jobId);
 
@@ -187,9 +163,9 @@ export function JobDetailView({ jobId }: JobDetailViewProps) {
     onEvent: (sseEvent) => {
       // Try to parse as ApiEvent for timeline
       if (
-        typeof sseEvent.data === "object" &&
+        typeof sseEvent.data === 'object' &&
         sseEvent.data !== null &&
-        "event_id" in sseEvent.data
+        'event_id' in sseEvent.data
       ) {
         appendLiveEvent(sseEvent.data as ApiEvent);
       }
@@ -245,16 +221,11 @@ export function JobDetailView({ jobId }: JobDetailViewProps) {
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <a
-                href="/jobs"
-                className="text-xs text-zinc-600 hover:text-zinc-400"
-              >
+              <a href="/jobs" className="text-xs text-zinc-600 hover:text-zinc-400">
                 Jobs
               </a>
               <span className="text-zinc-700">›</span>
-              <h1 className="text-sm font-semibold text-zinc-100 truncate">
-                {job.title}
-              </h1>
+              <h1 className="text-sm font-semibold text-zinc-100 truncate">{job.title}</h1>
             </div>
             <div className="mt-2 flex flex-wrap items-center gap-2">
               <JobStateBadge state={job.state} />
@@ -284,10 +255,10 @@ export function JobDetailView({ jobId }: JobDetailViewProps) {
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={cn(
-              "border-b-2 px-3 py-3 text-xs font-medium transition-colors",
+              'border-b-2 px-3 py-3 text-xs font-medium transition-colors',
               activeTab === tab.id
-                ? "border-indigo-500 text-indigo-300"
-                : "border-transparent text-zinc-500 hover:text-zinc-300"
+                ? 'border-indigo-500 text-indigo-300'
+                : 'border-transparent text-zinc-500 hover:text-zinc-300'
             )}
           >
             {tab.label}
@@ -297,16 +268,10 @@ export function JobDetailView({ jobId }: JobDetailViewProps) {
 
       {/* Tab content */}
       <div className="p-6">
-        {activeTab === "overview" && (
-          <OverviewTab job={job} />
-        )}
-        {activeTab === "stages" && (
-          <StagesTasksPanel jobId={jobId} />
-        )}
-        {activeTab === "timeline" && (
-          <EventsTimeline jobId={jobId} liveEvents={liveEvents} />
-        )}
-        {activeTab === "logs" && (
+        {activeTab === 'overview' && <OverviewTab job={job} />}
+        {activeTab === 'stages' && <StagesTasksPanel jobId={jobId} />}
+        {activeTab === 'timeline' && <EventsTimeline jobId={jobId} liveEvents={liveEvents} />}
+        {activeTab === 'logs' && (
           <div className="h-[60vh] min-h-80">
             <LogsPanel jobId={jobId} liveLines={liveLogLines} />
           </div>
