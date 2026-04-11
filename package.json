@@ -1,0 +1,37 @@
+{
+  "name": "openagents-monorepo",
+  "version": "0.1.0",
+  "description": "Multi-agent orchestration platform for autonomous AI workflows",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=22",
+    "pnpm": ">=10"
+  },
+  "scripts": {
+    "dev": "pnpm -r --parallel run dev",
+    "build": "pnpm -r run build",
+    "build:web": "pnpm --filter orchestrator-web build",
+    "e2e:web": "pnpm --filter orchestrator-web e2e",
+    "start": "pnpm -r run start",
+    "start:web": "pnpm --filter orchestrator-web start",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\" --ignore-path .gitignore",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\" --ignore-path .gitignore",
+    "lint": "pnpm -r --if-present run lint",
+    "type-check": "pnpm -r --if-present run type-check",
+    "typecheck": "pnpm -r --if-present run type-check",
+    "test:coverage:api": "dotnet test apps/orchestrator-api/OpenAgents.OrchestratorApi.csproj --collect:\"XPlat Code Coverage\" -v minimal",
+    "list": "pnpm list --depth=0",
+    "clean": "pnpm -r --if-present run clean",
+    "docker:up": "docker compose -f docker-compose.yml up -d",
+    "docker:down": "docker compose -f docker-compose.yml down",
+    "docker:logs": "docker compose -f docker-compose.yml logs -f",
+    "validate:compose": "pwsh -File scripts/validate-compose.ps1",
+    "docs:build": "docfx docs/docfx.json",
+    "docs:serve": "docfx docs/docfx.json --serve"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3"
+  }
+}

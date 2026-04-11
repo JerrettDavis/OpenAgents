@@ -1,0 +1,61 @@
+provider:
+  id: claude-code
+  name: Claude Code
+  version: "1.0.0"
+  description: >
+    Adapter for Anthropic's Claude Code CLI. First-class v1 provider.
+    Runs claude in --print --output-format stream-json mode inside the
+    openagents/provider-claude-code container image.
+
+  # ── Container image ─────────────────────────────────────────────────────────
+  # Build: docker build -t openagents/provider-claude-code:latest providers/claude-code
+  # Requires base image: docker build -t openagents/base-agent:latest images/base-agent
+  image:
+    ref: openagents/provider-claude-code:latest
+    base: base-agent   # FROM openagents/base-agent
+
+  # ── Capability flags (PROVIDER-CONTRACT.md §4 schema) ─────────────────────
+  capabilities:
+    supports_task_loop: true               # --max-turns controls iteration
+    supports_structured_logs: true         # stream-json output format
+    supports_token_metrics: true           # input_tokens / output_tokens in stream
+    supports_cache_metrics: true           # cache_read_input_tokens / cache_creation_input_tokens
+    supports_dynamic_model_switching: false  # model fixed per job in v1
+    supports_mailbox_notifications: true   # boundary-based polling (v1)
+    supports_subagents: false              # post-v1
+    supports_agent_dashboard: false        # post-v1
+
+  # ── Auth ───────────────────────────────────────────────────────────────────
+  # v1 posture: credentials passed as environment variables only.
+  # ANTHROPIC_API_KEY is NEVER baked into the image.
+  auth:
+    strategy: env
+    required_env:
+      - ANTHROPIC_API_KEY
+
+  # ── Launch strategy ────────────────────────────────────────────────────────
+  launch:
+    entrypoint: /usr/local/bin/entrypoint.sh
+    # Claude CLI flags used inside the entrypoint:
+    #   --print              non-interactive single-shot execution
+    #   --output-format stream-json   structured streaming output
+    #   --verbose            include tool calls + metadata in stream
+    #   --model $PRIMARY_MODEL        model selected by workflow / job
+    #   --max-turns $ITERATIONS__TASK task-level iteration limit
+    default_args:
+      - "--output-format"
+      - "stream-json"
+      - "--verbose"
+
+  # ── Log parsing ────────────────────────────────────────────────────────────
+  parsing:
+    log_format: stream-json    # Claude --output-format stream-json
+    token_fields:
+      - input_tokens
+      - output_tokens
+      - cache_read_input_tokens
+      - cache_creation_input_tokens
+
+  # ── Metrics extraction ────────────────────────────────────────────────────
+  metrics:
+    extraction_strategy: structured   # parse stream-json lines for usage objects

@@ -1,0 +1,78 @@
+workflow:
+  id: planning
+  name: Planning
+  version: 0.1.0
+  category: development
+  description: >
+    A single-stage planning workflow that produces a structured plan
+    document from a topic or brief. Suitable for v1 smoke-testing.
+
+  defaults:
+    provider: claude-code
+    model: claude-opus-4-5   # override per-job via PRIMARY_MODEL env var
+
+  compatibility:
+    providers:
+      - id: claude-code
+        support: first_class
+
+  # ── Prompt templates ─────────────────────────────────────────────────────
+  prompts:
+    system: prompts/system.md       # prepended to every task in this workflow
+    stages:
+      plan: prompts/stage-plan.md   # injected as the task prompt for the plan stage
+
+  stages:
+    - id: plan
+      name: Planning
+      order: 1
+      optional: false
+      iteration:
+        max: 5
+      gates:
+        - type: file_exists
+          condition: ".agent-orch/reports/"   # at least one report file written
+      tasks:
+        strategy: seed
+        seed:
+          - title: Analyse requirements
+            description: Review the brief and extract key requirements.
+            output:
+              path: TODO.md
+              format: markdown
+          - title: Create structured plan
+            description: Write a structured implementation plan to TODO.md.
+            output:
+              path: TODO.md
+              format: markdown
+          - title: Write planning report
+            description: Produce a final Markdown report in .agent-orch/reports/.
+            output:
+              path: .agent-orch/reports/
+              format: markdown
+
+  policies:
+    iteration:
+      job: 10
+      stage: 5
+      task: 3
+    completion:
+      requires_all_tasks: true
+    failure:
+      retry_on:
+        - transient
+      fail_on:
+        - auth_error
+    mailbox:
+      enabled: true
+      notify_on_receive: true   # boundary-based polling (v1)
+
+  artifacts:
+    report:
+      required: true
+      format: markdown
+      sections:
+        - summary
+        - stages
+        - tasks
+        - results

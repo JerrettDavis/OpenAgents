@@ -1,0 +1,50 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# docker-compose.override.example.yml
+#
+# Copy to docker-compose.override.yml (gitignored) and customise for your
+# local development environment. Docker Compose automatically merges
+# docker-compose.override.yml on top of docker-compose.yml.
+#
+# Common use-cases:
+#   • Bind-mount workspaces to a local directory for easy inspection
+#   • Inject ANTHROPIC_API_KEY without storing it in source control
+#   • Mount the Postgres init.sql automatically
+#   • Override image tags during local image development
+#
+# Usage:
+#   cp infra/docker/docker-compose.override.example.yml docker-compose.override.yml
+#   # Edit docker-compose.override.yml with your values
+#   docker compose up -d
+# ──────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ── Orchestrator API overrides ──────────────────────────────────────────────
+  orchestrator-api:
+    environment:
+      # Anthropic API key — required for Claude Code jobs.
+      # Set in your shell: export ANTHROPIC_API_KEY=sk-ant-...
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+
+      # Provider image tag used when spinning up agent containers.
+      # Matches the tag produced by scripts/build-images.sh.
+      - OpenAgents__Providers__ClaudeCode__ImageRef=openagents/provider-claude-code:latest
+
+      # Uncomment to enable the Swagger / OpenAPI UI at /openapi/v1.json.
+      # The main compose file uses Production to suppress it by default.
+      # - ASPNETCORE_ENVIRONMENT=Development
+    volumes:
+      # Bind-mount workspaces to a local path so you can inspect agent output
+      # directly from the host without docker exec.
+      - type: bind
+        source: ./local-workspaces
+        target: /workspaces
+
+  # ── Postgres: load init.sql on first start ──────────────────────────────────
+  postgres:
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./infra/docker/postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+
+# Make sure the local workspace directory exists on the host.
+# Run: mkdir -p local-workspaces

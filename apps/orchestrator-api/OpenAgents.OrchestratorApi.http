@@ -1,0 +1,49 @@
+@OpenAgents.OrchestratorApi_HostAddress = http://localhost:5236
+
+### Health check
+GET {{OpenAgents.OrchestratorApi_HostAddress}}/healthz
+Accept: application/json
+
+###
+
+### List jobs
+GET {{OpenAgents.OrchestratorApi_HostAddress}}/api/jobs
+Accept: application/json
+
+###
+
+### List providers
+GET {{OpenAgents.OrchestratorApi_HostAddress}}/api/providers
+Accept: application/json
+
+###
+
+### List workflows
+GET {{OpenAgents.OrchestratorApi_HostAddress}}/api/workflows
+Accept: application/json
+
+###
+
+### Create a job
+POST {{OpenAgents.OrchestratorApi_HostAddress}}/api/jobs
+Content-Type: application/json
+
+{
+  "title": "My First Planning Job",
+  "description": "Analyse the workspace and produce an implementation plan",
+  "workflowSlug": "planning",
+  "providerId": "claude-code",
+  "model": "claude-opus-4-5"
+}
+
+###
+
+### Get a specific job (replace {id} with a real job ID)
+# GET {{OpenAgents.OrchestratorApi_HostAddress}}/api/jobs/00000000-0000-0000-0000-000000000000
+
+###
+
+### Stream job events via SSE (replace {id})
+# GET {{OpenAgents.OrchestratorApi_HostAddress}}/api/jobs/00000000-0000-0000-0000-000000000000/events
+# Accept: text/event-stream
+

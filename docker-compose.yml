@@ -1,0 +1,58 @@
+name: openagents
+
+services:
+  orchestrator-api:
+    build:
+      context: .
+      dockerfile: apps/orchestrator-api/Dockerfile
+    container_name: openagents-api
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__OpenAgents=${DB_CONNECTION_STRING:-Data Source=/data/openagents.db}
+      - OpenAgents__Docker__SocketPath=/var/run/docker.sock
+      - OpenAgents__Storage__WorkspaceBasePath=/workspaces
+      - OpenAgents__Storage__ArtifactsBasePath=/artifacts
+      - OpenAgents__Providers__ClaudeCode__ImageRef=${CLAUDE_CODE_IMAGE_REF:-openagents/provider-claude-code:latest}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - workspaces:/workspaces
+      - artifacts:/artifacts
+      - data:/data
+    networks:
+      - openagents-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  orchestrator-web:
+    build:
+      context: .
+      dockerfile: apps/orchestrator-web/Dockerfile
+    container_name: openagents-web
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost:8080
+    depends_on:
+      orchestrator-api:
+        condition: service_healthy
+    networks:
+      - openagents-net
+
+volumes:
+  workspaces:
+  artifacts:
+  data:
+
+networks:
+  openagents-net:
+    driver: bridge

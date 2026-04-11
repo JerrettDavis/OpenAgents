@@ -1,0 +1,16 @@
+# Default ownership
+* @JerrettDavis
+
+# API / domain
+/apps/orchestrator-api/ @JerrettDavis
+/packages/domain/ @JerrettDavis
+
+# Web
+/apps/orchestrator-web/ @JerrettDavis
+
+# Runtime / providers
+/providers/ @JerrettDavis
+/images/ @JerrettDavis
+
+# Docs
+/docs/ @JerrettDavis

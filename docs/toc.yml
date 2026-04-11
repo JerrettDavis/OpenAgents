@@ -1,0 +1,18 @@
+- name: Home
+  href: index.md
+- name: User Guides
+  items:
+    - name: UI Quickstart
+      href: guides/quickstart-ui.md
+    - name: Operations Runbook
+      href: guides/operations-runbook.md
+- name: Developer Docs
+  items:
+    - name: Overview
+      href: developer/overview.md
+    - name: Architecture
+      href: developer/architecture.md
+    - name: API & Contracts
+      href: developer/api-contracts.md
+- name: API Reference
+  href: api/index.md

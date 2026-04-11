@@ -1,0 +1,8 @@
+packages:
+  - 'apps/*'
+  - 'providers/*'
+
+# Sharp & unrs-resolver are native modules that should be installed per-package
+ignoredBuiltDependencies:
+  - sharp
+  - unrs-resolver

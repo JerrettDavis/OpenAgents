@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/apps/" />
+  <Folder Name="/apps/orchestrator-api/">
+    <Project Path="apps/orchestrator-api/OpenAgents.OrchestratorApi.csproj" />
+  </Folder>
+  <Folder Name="/packages/" />
+  <Folder Name="/packages/domain/">
+    <Project Path="packages/domain/OpenAgents.Domain.csproj" />
+  </Folder>
+</Solution>

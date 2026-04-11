@@ -1,0 +1,21 @@
+{
+  "metadata": [
+    {
+      "src": [
+        {
+          "files": ["../apps/orchestrator-api/**/*.csproj", "../packages/domain/**/*.csproj"],
+          "exclude": ["**/bin/**", "**/obj/**"]
+        }
+      ],
+      "dest": "api"
+    }
+  ],
+  "build": {
+    "content": [
+      { "files": ["toc.yml", "index.md", "guides/**.md", "developer/**.md"] },
+      { "files": ["api/**.yml", "api/index.md"] }
+    ],
+    "resource": [{ "files": ["guides/screenshots/**"] }],
+    "dest": "_site"
+  }
+}
