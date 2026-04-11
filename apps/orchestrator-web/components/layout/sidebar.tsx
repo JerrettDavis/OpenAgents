@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils/cn';
+import { useSystemInfo } from '@/lib/hooks/use-system-info';
 
 interface NavItem {
   href: string;
@@ -132,20 +133,58 @@ const NAV_ITEMS: NavItem[] = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { info } = useSystemInfo();
 
   return (
-    <aside className="flex h-screen w-52 shrink-0 flex-col border-r border-zinc-800 bg-zinc-900">
-      {/* Logo */}
-      <div className="flex h-12 shrink-0 items-center gap-2.5 border-b border-zinc-800 px-4">
-        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-indigo-600 text-[10px] font-bold text-white shadow-md shadow-indigo-900/40">
+    <aside className="console-surface-strong relative m-3 flex h-[calc(100vh-1.5rem)] w-72 shrink-0 flex-col overflow-hidden rounded-xl">
+      <div className="console-hairline flex items-start gap-3 border-b border-[color:var(--line)] px-5 py-5">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-[color:color-mix(in_oklch,var(--line-strong)_42%,transparent)] bg-[color:color-mix(in_oklch,var(--surface-strong)_88%,transparent)] text-sm font-black tracking-[0.16em] text-[color:var(--accent)]">
           OA
         </div>
-        <span className="text-sm font-semibold tracking-tight text-zinc-100">OpenAgents</span>
+        <div className="min-w-0">
+          <p className="console-kicker">Control room</p>
+          <p className="mt-1 text-lg font-semibold text-[color:var(--foreground)]">OpenAgents</p>
+          <p className="mt-1 max-w-[14rem] text-sm leading-5 text-[color:var(--foreground-muted)]">
+            Multi-provider orchestration for headless agent workflows.
+          </p>
+        </div>
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 overflow-y-auto px-2 py-3" aria-label="Main">
-        <ul className="space-y-0.5" role="list">
+      <div className="px-4 pt-4">
+        <div className="console-surface rounded-lg px-4 py-3">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="console-kicker">Runtime</p>
+              <p className="mt-1 text-sm font-semibold text-[color:var(--foreground)]">
+                Headless matrix online
+              </p>
+            </div>
+            <div className="rounded-md border border-emerald-800/80 bg-emerald-950/60 px-2.5 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-emerald-200">
+              Ready
+            </div>
+          </div>
+          <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
+            <div className="rounded-2xl border border-[color:var(--line)] bg-black/10 px-3 py-2">
+              <p className="console-label">Providers</p>
+              <p className="mt-1 font-display text-xl font-semibold text-[color:var(--foreground)]">
+                {info?.providers_loaded.length ?? '—'}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-[color:var(--line)] bg-black/10 px-3 py-2">
+              <p className="console-label">Workflows</p>
+              <p className="mt-1 font-display text-xl font-semibold text-[color:var(--foreground)]">
+                {info?.workflows_loaded.length ?? '—'}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <nav className="flex-1 overflow-y-auto px-4 py-4" aria-label="Main">
+        <div className="mb-3 px-2">
+          <p className="console-kicker">Operate</p>
+        </div>
+        <ul className="space-y-1" role="list">
           {NAV_ITEMS.map((item) => {
             const isActive = item.exactMatch
               ? pathname === item.href
@@ -156,41 +195,66 @@ export function Sidebar() {
                 <Link
                   href={item.href}
                   className={cn(
-                    'flex items-center gap-2.5 rounded-md px-3 py-2 text-xs font-medium transition-colors',
+                    'group flex items-center gap-3 rounded-lg px-3.5 py-3 text-sm font-medium transition',
                     isActive
-                      ? 'bg-indigo-600/15 text-indigo-300'
-                      : 'text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200'
+                      ? 'border border-[color:color-mix(in_oklch,var(--line-strong)_45%,transparent)] bg-[color:color-mix(in_oklch,var(--surface-strong)_86%,transparent)] text-[color:var(--foreground)] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]'
+                      : 'border border-transparent text-[color:var(--foreground-soft)] hover:border-[color:var(--line)] hover:bg-[color:color-mix(in_oklch,var(--surface)_74%,transparent)] hover:text-[color:var(--foreground)]'
                   )}
                   aria-current={isActive ? 'page' : undefined}
                 >
                   <span
                     className={cn(
-                      'shrink-0 transition-colors',
-                      isActive ? 'text-indigo-400' : 'text-zinc-500'
+                      'flex h-9 w-9 shrink-0 items-center justify-center rounded-md border transition',
+                      isActive
+                        ? 'border-[color:color-mix(in_oklch,var(--line-strong)_52%,transparent)] bg-[color:color-mix(in_oklch,var(--accent)_18%,transparent)] text-[color:var(--accent)]'
+                        : 'border-[color:var(--line)] bg-black/10 text-[color:var(--foreground-muted)] group-hover:border-[color:color-mix(in_oklch,var(--line-strong)_36%,transparent)] group-hover:text-[color:var(--foreground-soft)]'
                     )}
                   >
                     {item.icon}
                   </span>
-                  {item.label}
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate">{item.label}</span>
+                    <span className="mt-0.5 block text-xs text-[color:var(--foreground-muted)]">
+                      {item.href === '/jobs' && 'Queue, watch, and control runs'}
+                      {item.href === '/workflows' && 'Inspect available orchestration plans'}
+                      {item.href === '/agents' && 'Review provider inventory and support'}
+                      {item.href === '/artifacts' && 'Browse generated workspace outputs'}
+                    </span>
+                  </span>
                 </Link>
               </li>
             );
           })}
         </ul>
 
-        {/* Bottom section — future: settings */}
-        <div className="mt-4 border-t border-zinc-800 pt-3">
+        <div className="mt-6 border-t border-[color:var(--line)] pt-4">
+          <div className="mb-3 px-2">
+            <p className="console-kicker">Configure</p>
+          </div>
           <Link
             href="/settings"
-            className="flex items-center gap-2.5 rounded-md px-3 py-2 text-xs font-medium text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-300"
+            className="group flex items-center gap-3 rounded-lg border border-transparent px-3.5 py-3 text-sm font-medium text-[color:var(--foreground-soft)] transition hover:border-[color:var(--line)] hover:bg-[color:color-mix(in_oklch,var(--surface)_74%,transparent)] hover:text-[color:var(--foreground)]"
           >
-            <span className="shrink-0">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[color:var(--line)] bg-black/10 text-[color:var(--foreground-muted)] transition group-hover:border-[color:color-mix(in_oklch,var(--line-strong)_36%,transparent)] group-hover:text-[color:var(--foreground-soft)]">
               <IconGear />
             </span>
-            Settings
+            <span className="min-w-0 flex-1">
+              <span className="block">Settings</span>
+              <span className="mt-0.5 block text-xs text-[color:var(--foreground-muted)]">
+                Provider toggles and runtime controls
+              </span>
+            </span>
           </Link>
         </div>
       </nav>
+
+      <div className="border-t border-[color:var(--line)] px-5 py-4 text-xs text-[color:var(--foreground-muted)]">
+        <p className="console-kicker">Publish bar</p>
+        <p className="mt-2 leading-5">
+          Claude Code, OpenCode, Codex, Gemini, and Copilot are treated as first-class headless
+          runtimes across the control room.
+        </p>
+      </div>
     </aside>
   );
 }

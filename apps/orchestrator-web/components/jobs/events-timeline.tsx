@@ -41,17 +41,15 @@ function eventTypeColor(type: string): string {
 
 function EventRow({ event }: { event: ApiEvent }) {
   return (
-    <div className="flex items-start gap-3 border-b border-zinc-800/50 px-4 py-2.5 last:border-0 hover:bg-zinc-900/40">
-      {/* Time */}
+    <div className="grid grid-cols-[96px_12px_minmax(0,1fr)_auto] items-start gap-3 border-b border-[color:var(--line)] px-4 py-3 last:border-0 hover:bg-white/[0.03]">
       <time
-        className="shrink-0 pt-0.5 text-xs text-zinc-600"
+        className="shrink-0 pt-0.5 text-xs text-[color:var(--foreground-muted)]"
         dateTime={event.occurred_at_utc}
         title={formatDateTime(event.occurred_at_utc)}
       >
         {formatRelativeTime(event.occurred_at_utc)}
       </time>
 
-      {/* Dot */}
       <span
         className={cn(
           'mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full',
@@ -63,7 +61,6 @@ function EventRow({ event }: { event: ApiEvent }) {
         )}
       />
 
-      {/* Main content */}
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
           <span className={cn('font-mono text-xs font-medium', eventTypeColor(event.event_type))}>
@@ -73,15 +70,16 @@ function EventRow({ event }: { event: ApiEvent }) {
             <Badge variant={SEVERITY_VARIANT[event.severity]}>{event.severity}</Badge>
           )}
         </div>
-        <p className="mt-0.5 text-xs text-zinc-300">{event.title}</p>
+        <p className="mt-1 text-sm text-[color:var(--foreground)]">{event.title}</p>
         {event.summary && event.summary !== event.title && (
-          <p className="mt-0.5 text-xs text-zinc-500">{event.summary}</p>
+          <p className="mt-1 text-xs leading-5 text-[color:var(--foreground-muted)]">
+            {event.summary}
+          </p>
         )}
       </div>
 
-      {/* Event ID (copyable) */}
       <span
-        className="shrink-0 cursor-pointer select-all text-xs text-zinc-700 hover:text-zinc-500"
+        className="shrink-0 cursor-pointer select-all rounded-md border border-[color:var(--line)] px-2 py-1 text-[0.68rem] text-[color:var(--foreground-muted)] hover:text-[color:var(--foreground-soft)]"
         title="Click to select event ID"
       >
         {event.event_id}
@@ -129,10 +127,15 @@ export function EventsTimeline({ jobId, liveEvents = [] }: EventsTimelineProps) 
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-zinc-800">
-      <div className="flex items-center justify-between border-b border-zinc-800 bg-zinc-900 px-4 py-2.5">
-        <span className="text-xs font-medium text-zinc-400">Timeline</span>
-        <span className="text-xs text-zinc-600">{allEvents.length} events</span>
+    <div className="console-surface overflow-hidden rounded-lg">
+      <div className="flex items-center justify-between border-b border-[color:var(--line)] bg-black/10 px-4 py-3">
+        <div>
+          <p className="console-kicker">Timeline</p>
+          <p className="mt-1 text-xs text-[color:var(--foreground-muted)]">
+            {allEvents.length} events
+          </p>
+        </div>
+        <Badge variant="default">{liveEvents.length > 0 ? 'Live feed' : 'Snapshot'}</Badge>
       </div>
       <div className="max-h-[600px] overflow-y-auto">
         {allEvents.map((event) => (

@@ -115,39 +115,43 @@ export function CreateJobDialog({ open, onClose, onCreated }: CreateJobDialogPro
   }
 
   return (
-    /* Backdrop */
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-md"
       onClick={handleBackdropClick}
     >
-      {/* Dialog */}
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="create-job-title"
-        className="relative w-full max-w-lg rounded-xl border border-zinc-700 bg-zinc-900 shadow-2xl"
+        className="console-surface-strong relative w-full max-w-2xl overflow-hidden rounded-xl shadow-2xl"
       >
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-zinc-800 px-6 py-4">
-          <h2 id="create-job-title" className="text-sm font-semibold text-zinc-100">
-            New Job
-          </h2>
+        <div className="console-hairline flex items-start justify-between gap-4 border-b border-[color:var(--line)] px-6 py-5">
+          <div>
+            <p className="console-kicker">Queue run</p>
+            <h2
+              id="create-job-title"
+              className="mt-2 text-2xl font-semibold text-[color:var(--foreground)]"
+            >
+              New Job
+            </h2>
+            <p className="mt-2 text-sm text-[color:var(--foreground-muted)]">
+              Choose the workflow, provider, and workspace before dispatching the run.
+            </p>
+          </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded p-1 text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-300"
+            className="rounded-md border border-[color:var(--line)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[color:var(--foreground-soft)] transition hover:border-[color:var(--line-strong)] hover:text-[color:var(--foreground)]"
             aria-label="Close"
           >
-            ✕
+            Close
           </button>
         </div>
 
-        {/* Form */}
         <form onSubmit={(e) => void handleSubmit(e)} className="px-6 py-5">
           <div className="space-y-4">
-            {/* Title */}
             <label className="block">
-              <span className="mb-1.5 block text-xs font-medium text-zinc-400">
+              <span className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.12em] text-[color:var(--foreground-soft)]">
                 Title <span className="text-red-400">*</span>
               </span>
               <input
@@ -156,13 +160,12 @@ export function CreateJobDialog({ open, onClose, onCreated }: CreateJobDialogPro
                 onChange={(e) => update('title', e.target.value)}
                 placeholder="e.g. Plan the OpenAgents repo"
                 autoFocus
-                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 outline-none transition-colors focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30"
+                className="w-full rounded-lg border border-[color:var(--line)] bg-black/15 px-4 py-3 text-sm text-[color:var(--foreground)] placeholder:text-[color:var(--foreground-muted)] outline-none transition focus:border-[color:var(--line-strong)] focus:bg-black/20"
               />
             </label>
 
-            {/* Prompt / Request */}
             <label className="block">
-              <span className="mb-1.5 block text-xs font-medium text-zinc-400">
+              <span className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.12em] text-[color:var(--foreground-soft)]">
                 Prompt / Request
               </span>
               <textarea
@@ -170,25 +173,26 @@ export function CreateJobDialog({ open, onClose, onCreated }: CreateJobDialogPro
                 onChange={(e) => update('description', e.target.value)}
                 placeholder="What should this agent run do? Include goals, constraints, and expected output."
                 rows={2}
-                className="w-full resize-none rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 outline-none transition-colors focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30"
+                className="w-full resize-none rounded-lg border border-[color:var(--line)] bg-black/15 px-4 py-3 text-sm text-[color:var(--foreground)] placeholder:text-[color:var(--foreground-muted)] outline-none transition focus:border-[color:var(--line-strong)] focus:bg-black/20"
               />
             </label>
 
-            {/* Workflow */}
             <label className="block">
-              <span className="mb-1.5 block text-xs font-medium text-zinc-400">
+              <span className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.12em] text-[color:var(--foreground-soft)]">
                 Workflow <span className="text-red-400">*</span>
               </span>
               {loadingWorkflows ? (
-                <div className="flex items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2">
+                <div className="flex items-center gap-2 rounded-lg border border-[color:var(--line)] bg-black/15 px-4 py-3">
                   <Spinner size="xs" />
-                  <span className="text-xs text-zinc-500">Loading workflows…</span>
+                  <span className="text-xs text-[color:var(--foreground-muted)]">
+                    Loading workflows…
+                  </span>
                 </div>
               ) : workflows.length > 0 ? (
                 <select
                   value={form.workflow_id}
                   onChange={(e) => update('workflow_id', e.target.value)}
-                  className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-zinc-100 outline-none transition-colors focus:border-indigo-500"
+                  className="w-full rounded-lg border border-[color:var(--line)] bg-black/15 px-4 py-3 text-sm text-[color:var(--foreground)] outline-none transition focus:border-[color:var(--line-strong)] focus:bg-black/20"
                 >
                   <option value="">Select workflow…</option>
                   {workflows.map((w) => (
@@ -204,27 +208,28 @@ export function CreateJobDialog({ open, onClose, onCreated }: CreateJobDialogPro
                   value={form.workflow_id}
                   onChange={(e) => update('workflow_id', e.target.value)}
                   placeholder="e.g. planning"
-                  className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 outline-none transition-colors focus:border-indigo-500"
+                  className="w-full rounded-lg border border-[color:var(--line)] bg-black/15 px-4 py-3 text-sm text-[color:var(--foreground)] placeholder:text-[color:var(--foreground-muted)] outline-none transition focus:border-[color:var(--line-strong)] focus:bg-black/20"
                 />
               )}
             </label>
 
-            {/* Provider + Model row */}
             <div className="grid grid-cols-2 gap-3">
               <label className="block">
-                <span className="mb-1.5 block text-xs font-medium text-zinc-400">
+                <span className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.12em] text-[color:var(--foreground-soft)]">
                   Provider <span className="text-red-400">*</span>
                 </span>
                 {loadingProviders ? (
-                  <div className="flex items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2">
+                  <div className="flex items-center gap-2 rounded-lg border border-[color:var(--line)] bg-black/15 px-4 py-3">
                     <Spinner size="xs" />
-                    <span className="text-xs text-zinc-500">Loading providers…</span>
+                    <span className="text-xs text-[color:var(--foreground-muted)]">
+                      Loading providers…
+                    </span>
                   </div>
                 ) : providers.length > 0 ? (
                   <select
                     value={form.provider_id}
                     onChange={(e) => update('provider_id', e.target.value)}
-                    className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-zinc-100 outline-none transition-colors focus:border-indigo-500"
+                    className="w-full rounded-lg border border-[color:var(--line)] bg-black/15 px-4 py-3 text-sm text-[color:var(--foreground)] outline-none transition focus:border-[color:var(--line-strong)] focus:bg-black/20"
                   >
                     {providers.map((p) => (
                       <option key={p.id} value={p.provider_id}>
@@ -238,25 +243,26 @@ export function CreateJobDialog({ open, onClose, onCreated }: CreateJobDialogPro
                     value={form.provider_id}
                     onChange={(e) => update('provider_id', e.target.value)}
                     placeholder="e.g. claude-code"
-                    className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 outline-none transition-colors focus:border-indigo-500"
+                    className="w-full rounded-lg border border-[color:var(--line)] bg-black/15 px-4 py-3 text-sm text-[color:var(--foreground)] placeholder:text-[color:var(--foreground-muted)] outline-none transition focus:border-[color:var(--line-strong)] focus:bg-black/20"
                   />
                 )}
               </label>
               <label className="block">
-                <span className="mb-1.5 block text-xs font-medium text-zinc-400">Model</span>
+                <span className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.12em] text-[color:var(--foreground-soft)]">
+                  Model
+                </span>
                 <input
                   type="text"
                   value={form.model}
                   onChange={(e) => update('model', e.target.value)}
                   placeholder="e.g. claude-sonnet-4-5"
-                  className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 outline-none transition-colors focus:border-indigo-500"
+                  className="w-full rounded-lg border border-[color:var(--line)] bg-black/15 px-4 py-3 text-sm text-[color:var(--foreground)] placeholder:text-[color:var(--foreground-muted)] outline-none transition focus:border-[color:var(--line-strong)] focus:bg-black/20"
                 />
               </label>
             </div>
 
-            {/* Workspace path */}
             <label className="block">
-              <span className="mb-1.5 block text-xs font-medium text-zinc-400">
+              <span className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.12em] text-[color:var(--foreground-soft)]">
                 Workspace path <span className="text-red-400">*</span>
               </span>
               <input
@@ -264,32 +270,30 @@ export function CreateJobDialog({ open, onClose, onCreated }: CreateJobDialogPro
                 value={form.workspace_path}
                 onChange={(e) => update('workspace_path', e.target.value)}
                 placeholder="/workspace/my-project"
-                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 font-mono text-sm text-zinc-100 placeholder-zinc-600 outline-none transition-colors focus:border-indigo-500"
+                className="w-full rounded-[1rem] border border-[color:var(--line)] bg-black/15 px-4 py-3 font-mono text-sm text-[color:var(--foreground)] placeholder:text-[color:var(--foreground-muted)] outline-none transition focus:border-[color:var(--line-strong)] focus:bg-black/20"
               />
             </label>
           </div>
 
-          {/* Error */}
           {submitError && (
-            <p className="mt-3 rounded-lg border border-red-900 bg-red-950/30 px-3 py-2 text-xs text-red-400">
+            <p className="mt-4 rounded-lg border border-red-900/70 bg-red-950/30 px-4 py-3 text-sm text-red-200">
               {submitError}
             </p>
           )}
 
-          {/* Actions */}
           <div className="mt-6 flex items-center justify-end gap-2">
             <button
               type="button"
               onClick={onClose}
               disabled={submitting}
-              className="rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-400 transition-colors hover:border-zinc-600 hover:text-zinc-200 disabled:opacity-50"
+              className="rounded-md border border-[color:var(--line)] px-4 py-2.5 text-sm font-semibold text-[color:var(--foreground-soft)] transition hover:border-[color:var(--line-strong)] hover:text-[color:var(--foreground)] disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-60"
+              className="flex items-center gap-2 rounded-md border border-[color:color-mix(in_oklch,var(--accent)_38%,var(--line-strong))] bg-[color:color-mix(in_oklch,var(--accent)_18%,transparent)] px-4 py-2.5 text-sm font-semibold text-[color:var(--foreground)] transition hover:bg-[color:color-mix(in_oklch,var(--accent)_24%,transparent)] disabled:opacity-60"
             >
               {submitting && <Spinner size="xs" />}
               {submitting ? 'Creating…' : 'Create Job'}

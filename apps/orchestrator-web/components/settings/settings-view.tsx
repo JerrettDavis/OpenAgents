@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { providersApi } from '@/lib/api/client';
 import { useProviders } from '@/lib/hooks/use-providers';
 import { useSystemInfo } from '@/lib/hooks/use-system-info';
+import { Badge } from '@/components/ui/badge';
 import { Spinner } from '@/components/ui/spinner';
 import { ErrorState } from '@/components/ui/error-state';
 
@@ -58,48 +59,72 @@ export function SettingsView() {
   const providerItems = Array.isArray(providers.providers) ? providers.providers : [];
 
   return (
-    <div className="flex flex-1 flex-col gap-4 p-6">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-base font-semibold text-zinc-100">Settings</h1>
-          <p className="mt-1 text-xs text-zinc-500">Runtime and provider configuration controls.</p>
+    <div className="flex flex-1 flex-col gap-4">
+      <section className="console-surface-strong console-hairline overflow-hidden rounded-xl px-5 py-5">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div className="space-y-3">
+            <div>
+              <p className="console-kicker">Runtime control</p>
+              <h1 className="mt-2 text-3xl font-semibold text-[color:var(--foreground)]">
+                Settings
+              </h1>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-[color:var(--foreground-soft)]">
+                Adjust provider state, inspect workspace paths, and keep the operator environment
+                ready for dispatch.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="default">{providerItems.length} providers configured</Badge>
+              <Badge variant="success">
+                {providerItems.filter((provider) => provider.is_enabled).length} enabled
+              </Badge>
+            </div>
+          </div>
+          <button
+            onClick={() => void createProvider()}
+            disabled={pending}
+            className="rounded-md border border-[color:color-mix(in_oklch,var(--accent)_38%,var(--line-strong))] bg-[color:color-mix(in_oklch,var(--accent)_18%,transparent)] px-4 py-2.5 text-sm font-semibold text-[color:var(--foreground)] transition hover:bg-[color:color-mix(in_oklch,var(--accent)_24%,transparent)] disabled:opacity-60"
+          >
+            {pending ? 'Creating…' : '+ New Provider'}
+          </button>
         </div>
-        <button
-          onClick={() => void createProvider()}
-          disabled={pending}
-          className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-500 disabled:opacity-60"
-        >
-          {pending ? 'Creating…' : '+ New Provider'}
-        </button>
-      </div>
+      </section>
 
       {actionError && <ErrorState message={actionError} />}
 
-      <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-4 text-xs">
-        <p className="text-zinc-500">Workspace root</p>
-        <p className="mt-1 font-mono text-zinc-300">{system.info?.workspace_root ?? '—'}</p>
+      <div className="console-surface rounded-lg p-4 text-sm">
+        <p className="console-kicker">Workspace root</p>
+        <p className="mt-2 break-all font-mono text-[color:var(--foreground-soft)]">
+          {system.info?.workspace_root ?? '—'}
+        </p>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-zinc-800">
-        <table className="w-full text-xs">
+      <div className="console-surface overflow-hidden rounded-xl">
+        <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-zinc-800 bg-zinc-900">
-              <th className="px-4 py-2 text-left text-zinc-500">Provider</th>
-              <th className="px-4 py-2 text-left text-zinc-500">Status</th>
-              <th className="px-4 py-2 text-left text-zinc-500">Image</th>
-              <th className="px-4 py-2 text-left text-zinc-500">Action</th>
+            <tr className="border-b border-[color:var(--line)] bg-black/5 text-left text-[color:var(--foreground-muted)]">
+              <th className="px-5 py-3">Provider</th>
+              <th className="px-5 py-3">Status</th>
+              <th className="px-5 py-3">Image</th>
+              <th className="px-5 py-3">Action</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-zinc-800/60">
+          <tbody className="divide-y divide-[color:var(--line)]">
             {providerItems.map((p) => (
-              <tr key={p.id} className="bg-zinc-900/40">
-                <td className="px-4 py-2 text-zinc-200">{p.provider_id}</td>
-                <td className="px-4 py-2 text-zinc-400">{p.is_enabled ? 'enabled' : 'disabled'}</td>
-                <td className="px-4 py-2 font-mono text-zinc-500">{p.docker_image}</td>
-                <td className="px-4 py-2">
+              <tr key={p.id} className="bg-black/5 hover:bg-white/[0.03]">
+                <td className="px-5 py-4 text-[color:var(--foreground)]">{p.provider_id}</td>
+                <td className="px-5 py-4">
+                  <Badge variant={p.is_enabled ? 'success' : 'muted'}>
+                    {p.is_enabled ? 'enabled' : 'disabled'}
+                  </Badge>
+                </td>
+                <td className="px-5 py-4 font-mono text-xs text-[color:var(--foreground-muted)]">
+                  {p.docker_image}
+                </td>
+                <td className="px-5 py-4">
                   <button
                     onClick={() => void toggleProvider(p.provider_id, p.is_enabled)}
-                    className="rounded border border-zinc-700 px-2 py-1 text-[11px] text-zinc-300 hover:border-zinc-500"
+                    className="rounded-md border border-[color:var(--line)] px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-[color:var(--foreground-soft)] transition hover:border-[color:var(--line-strong)] hover:text-[color:var(--foreground)]"
                   >
                     {p.is_enabled ? 'Disable' : 'Enable'}
                   </button>

@@ -58,7 +58,7 @@ function JobActions({ job, onRefresh }: { job: ApiJobDetail; onRefresh: () => vo
         <button
           disabled={!!actionPending}
           onClick={() => void doAction('start', () => jobsApi.start(job.id))}
-          className="flex items-center gap-1.5 rounded-lg bg-emerald-700 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-emerald-600 disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-md border border-emerald-700 bg-emerald-950/60 px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-emerald-100 transition hover:border-emerald-500 hover:bg-emerald-900/70 disabled:opacity-50"
         >
           {actionPending === 'start' && <Spinner size="xs" />}▶ Start
         </button>
@@ -68,7 +68,7 @@ function JobActions({ job, onRefresh }: { job: ApiJobDetail; onRefresh: () => vo
         <button
           disabled={!!actionPending}
           onClick={() => void doAction('stop', () => jobsApi.stop(job.id))}
-          className="flex items-center gap-1.5 rounded-lg border border-red-800 px-3 py-1.5 text-xs font-medium text-red-300 transition-colors hover:border-red-600 hover:text-red-200 disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-md border border-red-800 bg-red-950/40 px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-red-100 transition hover:border-red-600 hover:bg-red-950/60 disabled:opacity-50"
         >
           {actionPending === 'stop' && <Spinner size="xs" />}■ Stop
         </button>
@@ -78,7 +78,7 @@ function JobActions({ job, onRefresh }: { job: ApiJobDetail; onRefresh: () => vo
         <button
           disabled={!!actionPending}
           onClick={() => void doAction('archive', () => jobsApi.archive(job.id))}
-          className="flex items-center gap-1.5 rounded-lg border border-zinc-700 px-3 py-1.5 text-xs font-medium text-zinc-400 transition-colors hover:border-zinc-600 hover:text-zinc-200 disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-md border border-[color:var(--line)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[color:var(--foreground-soft)] transition hover:border-[color:var(--line-strong)] hover:text-[color:var(--foreground)] disabled:opacity-50"
         >
           {actionPending === 'archive' && <Spinner size="xs" />}
           Archive
@@ -94,7 +94,7 @@ function JobActions({ job, onRefresh }: { job: ApiJobDetail; onRefresh: () => vo
               router.push('/jobs');
             })
           }
-          className="flex items-center gap-1.5 rounded-lg border border-red-900 px-3 py-1.5 text-xs font-medium text-red-400 transition-colors hover:border-red-700 hover:text-red-300 disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-md border border-red-900 bg-red-950/30 px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-red-100 transition hover:border-red-700 hover:bg-red-950/50 disabled:opacity-50"
         >
           {actionPending === 'delete' && <Spinner size="xs" />}
           Delete
@@ -104,10 +104,10 @@ function JobActions({ job, onRefresh }: { job: ApiJobDetail; onRefresh: () => vo
       <button
         disabled={!!actionPending}
         onClick={onRefresh}
-        className="rounded-lg border border-zinc-700 px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:border-zinc-600 hover:text-zinc-200 disabled:opacity-50"
+        className="rounded-md border border-[color:var(--line)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-[color:var(--foreground-soft)] transition hover:border-[color:var(--line-strong)] hover:text-[color:var(--foreground)] disabled:opacity-50"
         title="Refresh job"
       >
-        ↺
+        ↺ Refresh
       </button>
     </div>
   );
@@ -215,68 +215,102 @@ export function JobDetailView({ jobId }: JobDetailViewProps) {
   // ── Render ────────────────────────────────────────────────────────
 
   return (
-    <div className="flex flex-col gap-0">
-      {/* Job header */}
-      <div className="border-b border-zinc-800 px-6 py-4">
-        <div className="flex items-start justify-between gap-4">
+    <div className="flex flex-col gap-4">
+      <section className="console-surface-strong console-hairline overflow-hidden rounded-xl">
+        <div className="flex flex-col gap-5 px-5 py-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <a href="/jobs" className="text-xs text-zinc-600 hover:text-zinc-400">
+            <div className="flex flex-wrap items-center gap-2 text-xs text-[color:var(--foreground-muted)]">
+              <a href="/jobs" className="transition hover:text-[color:var(--foreground-soft)]">
                 Jobs
               </a>
-              <span className="text-zinc-700">›</span>
-              <h1 className="text-sm font-semibold text-zinc-100 truncate">{job.title}</h1>
+              <span>›</span>
+              <span className="rounded-md border border-[color:var(--line)] px-2 py-1 font-mono">
+                {job.id}
+              </span>
+              <span>›</span>
+              <span className="truncate">{job.workflow_id}</span>
             </div>
-            <div className="mt-2 flex flex-wrap items-center gap-2">
+            <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+              <div className="min-w-0">
+                <p className="console-kicker">Run inspection</p>
+                <h1 className="mt-2 truncate text-3xl font-semibold text-[color:var(--foreground)]">
+                  {job.title}
+                </h1>
+                {job.description && (
+                  <p className="mt-2 max-w-3xl text-sm leading-6 text-[color:var(--foreground-soft)]">
+                    {job.description}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="mt-4 flex flex-wrap items-center gap-2">
               <JobStateBadge state={job.state} />
               <JobOutcomeBadge outcome={job.outcome} />
               {isActive && <SseBadge state={connectionState} />}
-              <span className="font-mono text-xs text-zinc-600">{job.id}</span>
+              <Badge variant="default">{job.provider_id}</Badge>
+              <Badge variant="default">{job.workflow_id}</Badge>
               {job.started_at_utc && (
-                <span className="text-xs text-zinc-500">
+                <span className="text-xs text-[color:var(--foreground-muted)]">
                   {formatElapsed(job.started_at_utc, job.finished_at_utc ?? undefined)} elapsed
                 </span>
               )}
             </div>
           </div>
-          <JobActions job={job} onRefresh={refetch} />
-        </div>
-      </div>
 
-      {/* Summary cards */}
-      <div className="border-b border-zinc-800 px-6 py-4">
-        <JobSummaryCards job={job} />
-      </div>
-
-      {/* Tabs nav */}
-      <div className="flex items-center gap-0 border-b border-zinc-800 px-6">
-        {TABS.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={cn(
-              'border-b-2 px-3 py-3 text-xs font-medium transition-colors',
-              activeTab === tab.id
-                ? 'border-indigo-500 text-indigo-300'
-                : 'border-transparent text-zinc-500 hover:text-zinc-300'
-            )}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Tab content */}
-      <div className="p-6">
-        {activeTab === 'overview' && <OverviewTab job={job} />}
-        {activeTab === 'stages' && <StagesTasksPanel jobId={jobId} />}
-        {activeTab === 'timeline' && <EventsTimeline jobId={jobId} liveEvents={liveEvents} />}
-        {activeTab === 'logs' && (
-          <div className="h-[60vh] min-h-80">
-            <LogsPanel jobId={jobId} liveLines={liveLogLines} />
+          <div className="flex w-full flex-col gap-4 lg:max-w-md">
+            <div className="grid grid-cols-2 gap-3">
+              <HeroDatum label="Connection" value={job.connection_status} />
+              <HeroDatum label="Model" value={job.model || 'Auto'} />
+              <HeroDatum label="Started" value={job.started_at_utc ? 'Active' : 'Pending'} />
+              <HeroDatum
+                label="Runtime"
+                value={
+                  job.started_at_utc ? formatElapsed(job.started_at_utc, job.finished_at_utc) : '—'
+                }
+              />
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <JobActions job={job} onRefresh={refetch} />
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      </section>
+
+      <section className="console-surface overflow-hidden rounded-xl px-5 py-5">
+        <JobSummaryCards job={job} />
+      </section>
+
+      <section className="console-surface overflow-hidden rounded-xl">
+        <div className="border-b border-[color:var(--line)] px-5 py-4">
+          <div className="flex flex-wrap gap-2">
+            {TABS.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={cn(
+                  'rounded-md border px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] transition',
+                  activeTab === tab.id
+                    ? 'border-[color:color-mix(in_oklch,var(--accent)_38%,var(--line-strong))] bg-[color:color-mix(in_oklch,var(--accent)_18%,transparent)] text-[color:var(--foreground)]'
+                    : 'border-[color:var(--line)] text-[color:var(--foreground-muted)] hover:border-[color:var(--line-strong)] hover:text-[color:var(--foreground)]'
+                )}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="p-5">
+          {activeTab === 'overview' && <OverviewTab job={job} />}
+          {activeTab === 'stages' && <StagesTasksPanel jobId={jobId} />}
+          {activeTab === 'timeline' && <EventsTimeline jobId={jobId} liveEvents={liveEvents} />}
+          {activeTab === 'logs' && (
+            <div className="h-[60vh] min-h-80">
+              <LogsPanel jobId={jobId} liveLines={liveLogLines} />
+            </div>
+          )}
+        </div>
+      </section>
     </div>
   );
 }
@@ -285,24 +319,71 @@ export function JobDetailView({ jobId }: JobDetailViewProps) {
 
 function OverviewTab({ job }: { job: ApiJobDetail }) {
   return (
-    <div className="space-y-4">
-      {job.description && (
-        <div className="rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-3">
-          <p className="mb-1 text-xs font-medium text-zinc-500">Description</p>
-          <p className="text-sm text-zinc-300">{job.description}</p>
+    <div className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)]">
+      <div className="space-y-4">
+        <div className="console-surface rounded-lg p-4">
+          <p className="console-kicker">Request</p>
+          <p className="mt-3 text-sm leading-7 text-[color:var(--foreground-soft)]">
+            {job.description || 'No additional request context was attached to this run.'}
+          </p>
         </div>
-      )}
 
-      {/* Raw job metadata (useful for debugging) */}
-      <details className="group overflow-hidden rounded-lg border border-zinc-800">
-        <summary className="flex cursor-pointer items-center justify-between bg-zinc-900 px-4 py-3 text-xs font-medium text-zinc-500 hover:text-zinc-300">
-          <span>Raw job metadata</span>
-          <span className="transition-transform group-open:rotate-90">›</span>
-        </summary>
-        <pre className="max-h-80 overflow-auto bg-zinc-950 p-4 text-xs text-zinc-400">
-          {JSON.stringify(job, null, 2)}
-        </pre>
-      </details>
+        <details className="console-surface group overflow-hidden rounded-lg">
+          <summary className="flex cursor-pointer items-center justify-between px-4 py-3 text-xs font-semibold uppercase tracking-[0.12em] text-[color:var(--foreground-soft)] hover:text-[color:var(--foreground)]">
+            <span>Raw job metadata</span>
+            <span className="transition-transform group-open:rotate-90">›</span>
+          </summary>
+          <pre className="max-h-80 overflow-auto border-t border-[color:var(--line)] bg-[color:color-mix(in_oklch,var(--background-strong)_90%,transparent)] p-4 text-xs text-[color:var(--foreground-soft)]">
+            {JSON.stringify(job, null, 2)}
+          </pre>
+        </details>
+      </div>
+
+      <div className="console-surface rounded-lg p-4">
+        <p className="console-kicker">Run profile</p>
+        <div className="mt-4 space-y-3">
+          <OverviewDatum label="Workflow" value={job.workflow_id} />
+          <OverviewDatum label="Workflow version" value={job.workflow_version || '—'} />
+          <OverviewDatum label="Provider" value={job.provider_id} />
+          <OverviewDatum label="Model" value={job.model || 'Auto'} />
+          <OverviewDatum label="Workspace" value={job.workspace_path || '—'} mono />
+          <OverviewDatum label="Current stage" value={job.current_stage_id || 'Waiting'} mono />
+          <OverviewDatum label="Current task" value={job.current_task_id || 'Waiting'} mono />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HeroDatum({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg border border-[color:var(--line)] bg-black/10 px-4 py-3">
+      <p className="console-label">{label}</p>
+      <p className="mt-2 text-sm font-semibold text-[color:var(--foreground)]">{value}</p>
+    </div>
+  );
+}
+
+function OverviewDatum({
+  label,
+  value,
+  mono = false,
+}: {
+  label: string;
+  value: string;
+  mono?: boolean;
+}) {
+  return (
+    <div className="rounded-lg border border-[color:var(--line)] bg-black/10 px-4 py-3">
+      <p className="console-label">{label}</p>
+      <p
+        className={cn(
+          'mt-1 text-sm text-[color:var(--foreground-soft)]',
+          mono && 'font-mono text-xs break-all'
+        )}
+      >
+        {value}
+      </p>
     </div>
   );
 }

@@ -4,10 +4,8 @@ on:
   workflow_dispatch:
   push:
     branches: [main, master]
-    paths:
-      - 'docs/**'
-      - 'README.md'
-      - 'DEVELOPMENT.md'
+  pull_request:
+    branches: [main, master]
 
 jobs:
   docs-check:
@@ -16,6 +14,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -30,12 +33,21 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Install DocFX
+        run: |
+          dotnet tool update --global docfx
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+
       - name: Markdown format check
         run: pnpm format:check
 
-      - name: Validate docs files exist
-        run: |
-          test -f docs/docfx.json
-          test -f docs/toc.yml
-          test -f docs/guides/quickstart-ui.md
-          test -f docs/developer/overview.md
+      - name: Build DocFX site
+        run: pnpm docs:build
+
+      - name: Upload DocFX site
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-site
+          path: docs/_site
+          if-no-files-found: ignore

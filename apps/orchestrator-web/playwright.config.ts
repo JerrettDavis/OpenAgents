@@ -39,7 +39,7 @@ export default defineConfig({
       reuseExistingServer: false,
     },
     {
-      command: 'pnpm build && pnpm start --port 3080',
+      command: 'pnpm exec next dev --hostname 127.0.0.1 --port 3080',
       cwd: __dirname,
       env: {
         ...process.env,

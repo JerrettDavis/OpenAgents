@@ -21,17 +21,25 @@ interface BadgeProps {
 }
 
 const VARIANT_CLASSES: Record<BadgeVariant, string> = {
-  default: 'bg-zinc-800 text-zinc-300 border border-zinc-700',
-  success: 'bg-emerald-950 text-emerald-400 border border-emerald-800',
-  warning: 'bg-amber-950 text-amber-400 border border-amber-800',
-  error: 'bg-red-950 text-red-400 border border-red-800',
-  info: 'bg-blue-950 text-blue-400 border border-blue-800',
-  muted: 'bg-zinc-900 text-zinc-500 border border-zinc-800',
-  blue: 'bg-blue-950 text-blue-300 border border-blue-800',
-  amber: 'bg-amber-950 text-amber-300 border border-amber-800',
-  red: 'bg-red-950 text-red-300 border border-red-800',
-  green: 'bg-emerald-950 text-emerald-300 border border-emerald-800',
-  violet: 'bg-violet-950 text-violet-300 border border-violet-800',
+  default:
+    'border border-[color:color-mix(in_oklch,var(--line-strong)_34%,transparent)] bg-[color:color-mix(in_oklch,var(--surface-strong)_82%,transparent)] text-[color:var(--foreground-soft)]',
+  success:
+    'border border-emerald-800/90 bg-emerald-950/60 text-emerald-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]',
+  warning:
+    'border border-amber-800/90 bg-amber-950/60 text-amber-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]',
+  error:
+    'border border-red-900/90 bg-red-950/70 text-red-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]',
+  info: 'border border-sky-900/90 bg-sky-950/70 text-sky-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]',
+  muted:
+    'border border-[color:color-mix(in_oklch,var(--line)_86%,transparent)] bg-[color:color-mix(in_oklch,var(--surface)_78%,transparent)] text-[color:var(--foreground-muted)]',
+  blue: 'border border-sky-900/90 bg-sky-950/70 text-sky-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]',
+  amber:
+    'border border-amber-800/90 bg-amber-950/60 text-amber-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]',
+  red: 'border border-red-900/90 bg-red-950/70 text-red-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]',
+  green:
+    'border border-emerald-800/90 bg-emerald-950/60 text-emerald-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]',
+  violet:
+    'border border-fuchsia-900/90 bg-fuchsia-950/65 text-fuchsia-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]',
 };
 
 const DOT_CLASSES: Record<BadgeVariant, string> = {
@@ -52,7 +60,7 @@ export function Badge({ children, variant = 'default', className, dot = false }:
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-medium leading-none',
+        'inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium leading-none',
         VARIANT_CLASSES[variant],
         className
       )}

@@ -18,7 +18,7 @@ export function Spinner({ size = 'md', className }: SpinnerProps) {
       role="status"
       aria-label="Loading"
       className={cn(
-        'inline-block rounded-full border-zinc-700 border-t-indigo-400 animate-spin',
+        'inline-block animate-spin rounded-full border-[color:color-mix(in_oklch,var(--line)_85%,transparent)] border-t-[color:var(--accent)]',
         SIZE_CLASSES[size],
         className
       )}

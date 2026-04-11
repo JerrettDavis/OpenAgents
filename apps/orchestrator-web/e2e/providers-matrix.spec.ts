@@ -61,15 +61,12 @@ test('required providers are available across API and dashboard surfaces', async
 
   await page.goto('/agents');
   await expect(page.getByRole('heading', { name: 'Agents' })).toBeVisible();
-  const providersLoadedCard = page
-    .locator('div.rounded-lg.border')
-    .filter({ has: page.getByText('Providers loaded', { exact: true }) })
-    .first();
+  const providersLoadedCard = page.getByTestId('agents-stat-providers-loaded');
   await expect(
     providersLoadedCard.getByText(String(requiredProviders.length), { exact: true })
   ).toBeVisible();
   for (const provider of requiredProviders) {
-    await expect(page.getByRole('cell', { name: provider.name, exact: true })).toBeVisible();
+    await expect(page.getByText(provider.name, { exact: true })).toBeVisible();
   }
 
   await page.goto('/settings');

@@ -50,20 +50,23 @@ export function LogsPanel({ jobId, liveLines = [] }: LogsPanelProps) {
   }
 
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950">
-      {/* Toolbar */}
-      <div className="flex shrink-0 items-center justify-between border-b border-zinc-800 bg-zinc-900 px-3 py-1.5">
-        <span className="text-xs text-zinc-500">{allLines.length} lines</span>
+    <div className="console-surface flex h-full flex-col overflow-hidden rounded-lg">
+      <div className="flex shrink-0 items-center justify-between border-b border-[color:var(--line)] bg-black/10 px-4 py-2.5">
+        <div>
+          <p className="console-kicker">Execution log</p>
+          <p className="mt-1 text-xs text-[color:var(--foreground-muted)]">
+            {allLines.length} lines
+          </p>
+        </div>
         <button
           onClick={refetch}
-          className="text-xs text-zinc-600 transition-colors hover:text-zinc-400"
+          className="rounded-md border border-[color:var(--line)] px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-[color:var(--foreground-soft)] transition hover:border-[color:var(--line-strong)] hover:text-[color:var(--foreground)]"
         >
           ↺ Reload
         </button>
       </div>
 
-      {/* Log lines */}
-      <div className="flex-1 overflow-y-auto p-3 font-mono text-xs leading-relaxed">
+      <div className="flex-1 overflow-y-auto bg-[color:color-mix(in_oklch,var(--background-strong)_90%,transparent)] p-4 font-mono text-xs leading-6">
         {allLines.map((line, i) => (
           <LogLine key={`${line.timestamp}-${i}`} line={line} />
         ))}
@@ -75,13 +78,17 @@ export function LogsPanel({ jobId, liveLines = [] }: LogsPanelProps) {
 
 function LogLine({ line }: { line: ApiLogLine }) {
   return (
-    <div className="flex gap-3 hover:bg-zinc-900/40">
-      <span className="shrink-0 select-none text-zinc-700">{formatLogTime(line.timestamp)}</span>
-      <span className="shrink-0 select-none text-zinc-600">{line.agent_id}</span>
+    <div className="grid grid-cols-[78px_128px_minmax(0,1fr)] gap-3 rounded-xl px-2 py-1.5 hover:bg-white/[0.03]">
+      <span className="shrink-0 select-none text-[color:var(--foreground-muted)]">
+        {formatLogTime(line.timestamp)}
+      </span>
+      <span className="truncate text-[color:color-mix(in_oklch,var(--foreground-muted)_86%,white_6%)]">
+        {line.agent_id}
+      </span>
       <span
         className={cn(
           'whitespace-pre-wrap break-all',
-          line.stream === 'stderr' ? 'text-red-400' : 'text-zinc-300'
+          line.stream === 'stderr' ? 'text-red-300' : 'text-[color:var(--foreground-soft)]'
         )}
       >
         {line.line}

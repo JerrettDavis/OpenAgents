@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { workflowsApi } from '@/lib/api/client';
 import { useWorkflows } from '@/lib/hooks/use-workflows';
+import { Badge } from '@/components/ui/badge';
 import { Spinner } from '@/components/ui/spinner';
 import { ErrorState } from '@/components/ui/error-state';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -44,20 +45,36 @@ export function WorkflowsView() {
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-4 p-6">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-base font-semibold text-zinc-100">Workflows</h1>
-          <p className="mt-1 text-xs text-zinc-500">Workflow definitions and status.</p>
+    <div className="flex flex-1 flex-col gap-4">
+      <section className="console-surface-strong console-hairline overflow-hidden rounded-xl px-5 py-5">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div className="space-y-3">
+            <div>
+              <p className="console-kicker">Workflow catalog</p>
+              <h1 className="mt-2 text-3xl font-semibold text-[color:var(--foreground)]">
+                Workflows
+              </h1>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-[color:var(--foreground-soft)]">
+                Keep orchestration definitions enabled, compatible, and easy to scan before you
+                dispatch work into the queue.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="default">{workflows.length} workflows loaded</Badge>
+              <Badge variant="success">
+                {workflows.filter((workflow) => workflow.is_enabled).length} enabled
+              </Badge>
+            </div>
+          </div>
+          <button
+            onClick={() => void createWorkflow()}
+            disabled={createPending}
+            className="rounded-md border border-[color:color-mix(in_oklch,var(--accent)_38%,var(--line-strong))] bg-[color:color-mix(in_oklch,var(--accent)_18%,transparent)] px-4 py-2.5 text-sm font-semibold text-[color:var(--foreground)] transition hover:bg-[color:color-mix(in_oklch,var(--accent)_24%,transparent)] disabled:opacity-60"
+          >
+            {createPending ? 'Creating…' : '+ New Workflow'}
+          </button>
         </div>
-        <button
-          onClick={() => void createWorkflow()}
-          disabled={createPending}
-          className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-500 disabled:opacity-60"
-        >
-          {createPending ? 'Creating…' : '+ New Workflow'}
-        </button>
-      </div>
+      </section>
 
       {actionError && <ErrorState message={actionError} />}
 
@@ -70,28 +87,30 @@ export function WorkflowsView() {
       ) : workflows.length === 0 ? (
         <EmptyState title="No workflows" description="No workflows were returned." />
       ) : (
-        <div className="overflow-hidden rounded-xl border border-zinc-800">
-          <table className="w-full text-xs">
+        <div className="console-surface overflow-hidden rounded-xl">
+          <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-zinc-800 bg-zinc-900">
-                <th className="px-4 py-2 text-left text-zinc-500">Name</th>
-                <th className="px-4 py-2 text-left text-zinc-500">Slug</th>
-                <th className="px-4 py-2 text-left text-zinc-500">Version</th>
-                <th className="px-4 py-2 text-left text-zinc-500">Category</th>
-                <th className="px-4 py-2 text-left text-zinc-500">Status</th>
+              <tr className="border-b border-[color:var(--line)] bg-black/5 text-left text-[color:var(--foreground-muted)]">
+                <th className="px-5 py-3">Name</th>
+                <th className="px-5 py-3">Slug</th>
+                <th className="px-5 py-3">Version</th>
+                <th className="px-5 py-3">Category</th>
+                <th className="px-5 py-3">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-800/60">
+            <tbody className="divide-y divide-[color:var(--line)]">
               {workflows.map((w) => (
-                <tr key={w.id} className="bg-zinc-900/40">
-                  <td className="px-4 py-2 text-zinc-200">{w.name}</td>
-                  <td className="px-4 py-2 font-mono text-zinc-500">{w.slug}</td>
-                  <td className="px-4 py-2 text-zinc-400">{w.version}</td>
-                  <td className="px-4 py-2 text-zinc-400">{w.category}</td>
-                  <td className="px-4 py-2">
+                <tr key={w.id} className="bg-black/5 hover:bg-white/[0.03]">
+                  <td className="px-5 py-4 text-[color:var(--foreground)]">{w.name}</td>
+                  <td className="px-5 py-4 font-mono text-xs text-[color:var(--foreground-muted)]">
+                    {w.slug}
+                  </td>
+                  <td className="px-5 py-4 text-[color:var(--foreground-soft)]">{w.version}</td>
+                  <td className="px-5 py-4 text-[color:var(--foreground-soft)]">{w.category}</td>
+                  <td className="px-5 py-4">
                     <button
                       onClick={() => void toggleWorkflow(w.slug, w.is_enabled)}
-                      className="rounded border border-zinc-700 px-2 py-1 text-[11px] text-zinc-300 hover:border-zinc-500"
+                      className="rounded-md border border-[color:var(--line)] px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-[color:var(--foreground-soft)] transition hover:border-[color:var(--line-strong)] hover:text-[color:var(--foreground)]"
                     >
                       {w.is_enabled ? 'Disable' : 'Enable'}
                     </button>

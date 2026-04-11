@@ -1,7 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { systemApi } from '@/lib/api/client';
+import { useSystemInfo } from '@/lib/hooks/use-system-info';
 import { cn } from '@/lib/utils/cn';
 
 function HealthDot({ healthy }: { healthy: boolean | null }) {
@@ -22,6 +24,58 @@ function HealthDot({ healthy }: { healthy: boolean | null }) {
 
 export function TopBar() {
   const [healthy, setHealthy] = useState<boolean | null>(null);
+  const pathname = usePathname();
+  const { info } = useSystemInfo();
+
+  const pageMeta = useMemo(() => {
+    if (pathname.startsWith('/jobs/')) {
+      return {
+        label: 'Run detail',
+        title: 'Job inspection',
+        description: 'Stream live execution, events, stages, and logs from one pane.',
+      };
+    }
+    if (pathname.startsWith('/jobs')) {
+      return {
+        label: 'Operations',
+        title: 'Jobs',
+        description: 'Queue, filter, and intervene on provider-backed runs.',
+      };
+    }
+    if (pathname.startsWith('/workflows')) {
+      return {
+        label: 'Catalog',
+        title: 'Workflows',
+        description: 'Track enabled orchestration plans and compatibility.',
+      };
+    }
+    if (pathname.startsWith('/agents')) {
+      return {
+        label: 'Providers',
+        title: 'Agents',
+        description: 'Monitor the runtime inventory and support matrix.',
+      };
+    }
+    if (pathname.startsWith('/artifacts')) {
+      return {
+        label: 'Outputs',
+        title: 'Artifacts',
+        description: 'Inspect workspaces and generated files by run.',
+      };
+    }
+    if (pathname.startsWith('/settings')) {
+      return {
+        label: 'Runtime',
+        title: 'Settings',
+        description: 'Adjust provider state and inspect runtime roots.',
+      };
+    }
+    return {
+      label: 'Overview',
+      title: 'OpenAgents',
+      description: 'Container-first orchestration for CLI-native agent systems.',
+    };
+  }, [pathname]);
 
   useEffect(() => {
     let cancelled = false;
@@ -44,21 +98,51 @@ export function TopBar() {
   }, []);
 
   return (
-    <header className="flex h-12 shrink-0 items-center justify-between border-b border-zinc-800 bg-zinc-900 px-4">
-      {/* Left: breadcrumb slot (filled by pages via context in future) */}
-      <div className="flex items-center gap-2 text-xs text-zinc-500">
-        <span className="font-mono">orchestrator</span>
-      </div>
+    <header className="border-b border-[color:var(--line)] bg-[color:color-mix(in_oklch,var(--surface)_74%,transparent)] px-4 py-3 backdrop-blur-xl lg:px-5">
+      <div className="mx-auto flex w-full max-w-[1600px] items-start justify-between gap-4">
+        <div className="min-w-0">
+          <p className="console-kicker">{pageMeta.label}</p>
+          <div className="mt-1 flex flex-wrap items-end gap-3">
+            <p className="text-2xl font-semibold text-[color:var(--foreground)]">
+              {pageMeta.title}
+            </p>
+            <p className="pb-0.5 text-sm text-[color:var(--foreground-muted)]">
+              {pageMeta.description}
+            </p>
+          </div>
+        </div>
 
-      {/* Right: status + future actions */}
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2">
-          <HealthDot healthy={healthy} />
-          <span className="text-xs text-zinc-500">
-            {healthy === null ? 'Connecting…' : healthy ? 'API online' : 'API offline'}
-          </span>
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <StatusChip
+            label="API"
+            value={healthy === null ? 'Checking' : healthy ? 'Online' : 'Offline'}
+            healthy={healthy}
+          />
+          <StatusChip label="Active jobs" value={String(info?.active_jobs ?? '—')} />
+          <StatusChip label="Providers" value={String(info?.providers_loaded.length ?? '—')} />
+          <StatusChip label="Workflows" value={String(info?.workflows_loaded.length ?? '—')} />
         </div>
       </div>
     </header>
+  );
+}
+
+function StatusChip({
+  label,
+  value,
+  healthy,
+}: {
+  label: string;
+  value: string;
+  healthy?: boolean | null;
+}) {
+  return (
+    <div className="flex items-center gap-2 rounded-md border border-[color:var(--line)] bg-black/10 px-3 py-2 text-xs">
+      {healthy !== undefined && <HealthDot healthy={healthy} />}
+      <span className="font-medium uppercase tracking-[0.14em] text-[color:var(--foreground-muted)]">
+        {label}
+      </span>
+      <span className="text-[color:var(--foreground)]">{value}</span>
+    </div>
   );
 }

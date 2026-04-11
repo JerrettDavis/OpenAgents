@@ -9,9 +9,9 @@ interface SummaryCardProps {
 
 function SummaryCard({ label, value }: SummaryCardProps) {
   return (
-    <div className="flex flex-col gap-1.5 rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-3">
-      <span className="text-xs font-medium text-zinc-500">{label}</span>
-      <div className="text-sm text-zinc-200">{value}</div>
+    <div className="rounded-lg border border-[color:var(--line)] bg-black/10 px-4 py-3">
+      <span className="console-label">{label}</span>
+      <div className="mt-2 text-sm text-[color:var(--foreground)]">{value}</div>
     </div>
   );
 }
@@ -30,23 +30,25 @@ function CountBar({ label, completed, running, notStarted, total }: CountBarProp
   const pctRunning = (running / total) * 100;
 
   return (
-    <div className="flex flex-col gap-1.5 rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-3">
+    <div className="rounded-lg border border-[color:var(--line)] bg-black/10 px-4 py-3">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-zinc-500">{label}</span>
-        <span className="text-xs text-zinc-400">
+        <span className="console-label">{label}</span>
+        <span className="text-xs text-[color:var(--foreground-soft)]">
           {completed}/{total}
         </span>
       </div>
-      {/* Progress bar */}
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-800">
+      <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-black/30">
         <div className="flex h-full">
-          <div className="h-full bg-emerald-500 transition-all" style={{ width: `${pctDone}%` }} />
-          <div className="h-full bg-blue-500 transition-all" style={{ width: `${pctRunning}%` }} />
+          <div className="h-full bg-emerald-400 transition-all" style={{ width: `${pctDone}%` }} />
+          <div
+            className="h-full bg-[color:var(--accent)] transition-all"
+            style={{ width: `${pctRunning}%` }}
+          />
         </div>
       </div>
-      <div className="flex items-center gap-3 text-xs text-zinc-500">
-        {completed > 0 && <span className="text-emerald-500">{completed} done</span>}
-        {running > 0 && <span className="text-blue-400">{running} running</span>}
+      <div className="mt-3 flex items-center gap-3 text-xs text-[color:var(--foreground-muted)]">
+        {completed > 0 && <span className="text-emerald-300">{completed} done</span>}
+        {running > 0 && <span className="text-[color:var(--accent)]">{running} running</span>}
         {notStarted > 0 && <span>{notStarted} pending</span>}
       </div>
     </div>
@@ -59,7 +61,7 @@ interface JobSummaryCardsProps {
 
 export function JobSummaryCards({ job }: JobSummaryCardsProps) {
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5">
       <SummaryCard
         label="State"
         value={
@@ -82,7 +84,9 @@ export function JobSummaryCards({ job }: JobSummaryCardsProps) {
         <SummaryCard
           label="Workspace"
           value={
-            <span className="break-all font-mono text-xs text-zinc-400">{job.workspace_path}</span>
+            <span className="break-all font-mono text-xs text-[color:var(--foreground-soft)]">
+              {job.workspace_path}
+            </span>
           }
         />
       )}
