@@ -4,11 +4,6 @@ on:
   workflow_dispatch:
   push:
     branches: [main, master]
-    paths:
-      - 'docker-compose.yml'
-      - 'docker-compose.override.yml'
-      - 'infra/**'
-      - 'scripts/validate-compose.ps1'
 
 jobs:
   compose:
