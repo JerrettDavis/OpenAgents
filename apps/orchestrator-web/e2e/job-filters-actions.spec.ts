@@ -1,14 +1,12 @@
 import { expect, test } from '@playwright/test';
+import { captureDashboardScreenshot } from './support/screenshots';
 
 test('jobs filters and job-detail actions render correctly', async ({
   page,
   request,
 }, testInfo) => {
   const shot = async (name: string) => {
-    await page.screenshot({
-      path: testInfo.outputPath(`${name}.png`),
-      fullPage: true,
-    });
+    await captureDashboardScreenshot(page, testInfo, name);
   };
 
   const healthResp = await request.get('http://127.0.0.1:5080/healthz');

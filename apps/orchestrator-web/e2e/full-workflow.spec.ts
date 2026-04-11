@@ -1,14 +1,12 @@
 import { expect, test } from '@playwright/test';
+import { captureDashboardScreenshot } from './support/screenshots';
 
 test('full workflow surfaces render and job flow is operable', async ({
   page,
   request,
 }, testInfo) => {
   const shot = async (name: string) => {
-    await page.screenshot({
-      path: testInfo.outputPath(`${name}.png`),
-      fullPage: true,
-    });
+    await captureDashboardScreenshot(page, testInfo, name);
   };
 
   const jobTitle = `E2E workflow ${Date.now()}`;
