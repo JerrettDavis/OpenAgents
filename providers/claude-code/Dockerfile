@@ -63,7 +63,8 @@ RUN npm install -g @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION} \
 
 # ── Provider entrypoint scripts ───────────────────────────────────────────────
 COPY scripts/ /usr/local/bin/
-RUN chmod +x /usr/local/bin/entrypoint.sh
+RUN sed -i 's/\r$//' /usr/local/bin/entrypoint.sh \
+ && chmod +x /usr/local/bin/entrypoint.sh
 
 # ── Switch back to agent user ──────────────────────────────────────────────────
 USER agent

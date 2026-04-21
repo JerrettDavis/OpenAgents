@@ -96,9 +96,13 @@ public sealed class JobEndpointsIntegrationTests : IClassFixture<OrchestratorApi
 
         Assert.NotNull(providers);
         Assert.NotEmpty(providers);
-        Assert.Equal(
-            ["claude-code", "codex", "copilot", "gemini", "opencode"],
-            providers.Select(p => p.ProviderId).OrderBy(id => id).ToArray());
+        var providerIds = providers.Select(p => p.ProviderId).ToArray();
+        // Core filesystem providers must always be present
+        Assert.Contains("claude-code", providerIds);
+        Assert.Contains("codex", providerIds);
+        Assert.Contains("copilot", providerIds);
+        Assert.Contains("gemini", providerIds);
+        Assert.Contains("opencode", providerIds);
     }
 
     [Fact]
@@ -435,6 +439,10 @@ public sealed class OrchestratorApiFactory : WebApplicationFactory<Program>
         // named after the assembly ("OpenAgents.OrchestratorApi") but the actual
         // directory is "orchestrator-api", so the fallback is unreliable here.
         builder.UseContentRoot(ResolveProjectContentRoot());
+
+        // Suppress SPA proxy during tests — no Next.js dev server is running
+        builder.ConfigureAppConfiguration(config =>
+            config.AddInMemoryCollection([new("SUPPRESS_SPA_PROXY", "true")]));
 
         builder.ConfigureServices(services =>
         {

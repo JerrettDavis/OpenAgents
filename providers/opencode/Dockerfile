@@ -13,7 +13,8 @@ RUN npm install -g opencode-ai@${OPENCODE_VERSION} \
     && opencode --version
 
 COPY scripts/ /usr/local/bin/
-RUN chmod +x /usr/local/bin/entrypoint.sh
+RUN sed -i 's/\r$//' /usr/local/bin/entrypoint.sh \
+ && chmod +x /usr/local/bin/entrypoint.sh
 
 USER agent
 WORKDIR /workspace

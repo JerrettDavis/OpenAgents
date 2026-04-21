@@ -41,7 +41,8 @@ RUN mkdir -p /workspace /workspaces \
 
 # ── Helper scripts ─────────────────────────────────────────────────────────────
 COPY scripts/ /usr/local/bin/
-RUN chmod +x /usr/local/bin/init-workspace.sh \
+RUN sed -i 's/\r$//' /usr/local/bin/*.sh \
+ && chmod +x /usr/local/bin/init-workspace.sh \
              /usr/local/bin/emit-event.sh \
              /usr/local/bin/healthcheck.sh
 

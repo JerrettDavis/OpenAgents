@@ -13,7 +13,8 @@ RUN npm install -g @github/copilot@${COPILOT_CLI_VERSION} \
     && copilot --version
 
 COPY scripts/ /usr/local/bin/
-RUN chmod +x /usr/local/bin/entrypoint.sh
+RUN sed -i 's/\r$//' /usr/local/bin/entrypoint.sh \
+ && chmod +x /usr/local/bin/entrypoint.sh
 
 USER agent
 WORKDIR /workspace

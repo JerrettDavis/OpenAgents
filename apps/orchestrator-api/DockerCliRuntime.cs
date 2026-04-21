@@ -79,6 +79,19 @@ public sealed class DockerCliRuntime : IContainerRuntime
             args.Add($"{hostPath}:{request.WorkspaceContainerPath}");
         }
 
+        // Additional bind mounts (e.g., credential directories)
+        if (request.AdditionalMounts is not null)
+        {
+            foreach (var mount in request.AdditionalMounts)
+            {
+                var mountHostPath = NormaliseDockerPath(mount.HostPath);
+                args.Add("-v");
+                args.Add(mount.ReadOnly
+                    ? $"{mountHostPath}:{mount.ContainerPath}:ro"
+                    : $"{mountHostPath}:{mount.ContainerPath}");
+            }
+        }
+
         foreach (var kv in request.EnvironmentVariables)
         {
             args.Add("-e");

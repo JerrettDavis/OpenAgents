@@ -174,6 +174,35 @@ public sealed class JobRunnerService : BackgroundService
                 : $"{_options.Storage.WorkspaceBasePath.TrimEnd('/')}/{job.Id.Value:N}";
             var envVars = ProviderLaunchEnvironmentBuilder.Build(job, providerManifest, workspacePathOverride);
 
+            // Build additional mounts for local credentials (OAuth, config dirs)
+            var additionalMounts = new List<BindMount>();
+            var userHome = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+
+            // Claude Code OAuth: ~/.claude → /home/{agent,dev}/.claude
+            var claudeConfigDir = Path.Combine(userHome, ".claude");
+            if (Directory.Exists(claudeConfigDir))
+            {
+                additionalMounts.Add(new BindMount(claudeConfigDir, "/home/agent/.claude", ReadOnly: false));
+                additionalMounts.Add(new BindMount(claudeConfigDir, "/home/dev/.claude", ReadOnly: false));
+            }
+
+            // Codex (OpenAI) auth: ~/.codex → /home/{agent,dev}/.codex
+            var codexConfigDir = Path.Combine(userHome, ".codex");
+            if (Directory.Exists(codexConfigDir))
+            {
+                additionalMounts.Add(new BindMount(codexConfigDir, "/home/agent/.codex", ReadOnly: false));
+                additionalMounts.Add(new BindMount(codexConfigDir, "/home/dev/.codex", ReadOnly: false));
+            }
+
+            // GitHub Copilot: inject GH_TOKEN from `gh auth token` if available
+            if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("GH_TOKEN")) &&
+                string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("GITHUB_TOKEN")))
+            {
+                var ghToken = ResolveGhAuthToken();
+                if (!string.IsNullOrWhiteSpace(ghToken))
+                    Environment.SetEnvironmentVariable("GH_TOKEN", ghToken);
+            }
+
             var containerRequest = new ContainerStartRequest(
                 Image:                   providerImage,
                 ContainerName:           containerName,
@@ -183,7 +212,8 @@ public sealed class JobRunnerService : BackgroundService
                 SharedWorkspaceVolumeName: sharedWorkspaceVolumeName,
                 SharedWorkspaceVolumeMountPath: sharedWorkspaceVolumeName is null
                     ? null
-                    : _options.Storage.WorkspaceBasePath);
+                    : _options.Storage.WorkspaceBasePath,
+                AdditionalMounts:        additionalMounts);
 
             string containerId;
             try
@@ -406,7 +436,7 @@ public sealed class JobRunnerService : BackgroundService
             return false;
 
         var missingRequiredEnv = providerManifest.RequiredEnv
-            .Where(IsMissingEnvironmentVariable)
+            .Where(envVar => IsMissingEnvironmentVariable(envVar) && !IsAvailableViaOAuth(envVar))
             .ToArray();
 
         if (missingRequiredEnv.Length > 0)
@@ -417,7 +447,8 @@ public sealed class JobRunnerService : BackgroundService
         }
 
         if (providerManifest.RequiredAnyEnv.Count > 0 &&
-            !providerManifest.RequiredAnyEnv.Any(static envVarName => !IsMissingEnvironmentVariable(envVarName)))
+            !providerManifest.RequiredAnyEnv.Any(envVarName =>
+                !IsMissingEnvironmentVariable(envVarName) || IsAvailableViaOAuth(envVarName)))
         {
             message =
                 $"Provider '{providerManifest.Id}' requires at least one of these environment variables: {string.Join(", ", providerManifest.RequiredAnyEnv)}";
@@ -429,5 +460,51 @@ public sealed class JobRunnerService : BackgroundService
 
     private static bool IsMissingEnvironmentVariable(string envVarName)
         => string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(envVarName));
+
+    private static bool IsAvailableViaOAuth(string envVarName)
+    {
+        var userHome = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+
+        // ANTHROPIC_API_KEY not needed when Claude OAuth credentials exist
+        if (string.Equals(envVarName, "ANTHROPIC_API_KEY", StringComparison.OrdinalIgnoreCase))
+            return File.Exists(Path.Combine(userHome, ".claude", ".credentials.json"));
+
+        // OPENAI_API_KEY not needed when Codex local auth exists
+        if (string.Equals(envVarName, "OPENAI_API_KEY", StringComparison.OrdinalIgnoreCase))
+            return File.Exists(Path.Combine(userHome, ".codex", "auth.json"));
+
+        // GH_TOKEN/GITHUB_TOKEN not needed when gh CLI is authenticated
+        if (string.Equals(envVarName, "GH_TOKEN", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(envVarName, "GITHUB_TOKEN", StringComparison.OrdinalIgnoreCase))
+            return !string.IsNullOrWhiteSpace(ResolveGhAuthToken());
+
+        return false;
+    }
+
+    private static string? _cachedGhToken;
+    private static string? ResolveGhAuthToken()
+    {
+        if (_cachedGhToken is not null) return _cachedGhToken;
+        try
+        {
+            var psi = new System.Diagnostics.ProcessStartInfo("gh", "auth token")
+            {
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+            using var process = System.Diagnostics.Process.Start(psi);
+            if (process is null) return null;
+            var token = process.StandardOutput.ReadToEnd().Trim();
+            process.WaitForExit();
+            _cachedGhToken = process.ExitCode == 0 && token.Length > 0 ? token : "";
+            return _cachedGhToken;
+        }
+        catch
+        {
+            _cachedGhToken = "";
+            return null;
+        }
+    }
 
 }

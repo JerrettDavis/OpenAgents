@@ -9,6 +9,7 @@ public sealed class OrchestratorOptions
     public StorageOptions Storage { get; init; } = new();
     public PathsOptions Paths { get; init; } = new();
     public ApiOptions Api { get; init; } = new();
+    public AgentContainersOptions AgentContainers { get; init; } = new();
     public bool UseLocalSimRuntime { get; init; } = false;
 }
 
@@ -51,4 +52,26 @@ public sealed class PathsOptions
 public sealed class ApiOptions
 {
     public string[] CorsOrigins { get; init; } = ["http://localhost:3000", "http://localhost:3001"];
+}
+
+public sealed class AgentContainersOptions
+{
+    /// <summary>Enables AgentContainers as an additional provider source.</summary>
+    public bool Enabled { get; init; } = false;
+
+    /// <summary>"local" reads image-catalog.json from LocalRepoPath. "remote" fetches from CatalogUrl via HTTP.</summary>
+    public string Mode { get; init; } = "local";
+
+    /// <summary>Absolute path to the AgentContainers repo root. Used when Mode=local.</summary>
+    public string LocalRepoPath { get; init; } = string.Empty;
+
+    /// <summary>URL to the raw image-catalog.json. Used when Mode=remote.</summary>
+    public string CatalogUrl { get; init; } =
+        "https://raw.githubusercontent.com/JerrettDavis/AgentContainers/main/generated/image-catalog.json";
+
+    /// <summary>When Mode=local, also read definitions/ YAML to extract env var requirements.</summary>
+    public bool LoadEnvMetadataFromDefinitions { get; init; } = true;
+
+    /// <summary>Prefix added to provider IDs from AgentContainers to avoid collision.</summary>
+    public string ProviderIdPrefix { get; init; } = "ac-";
 }

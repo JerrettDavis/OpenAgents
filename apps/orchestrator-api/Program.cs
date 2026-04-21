@@ -6,6 +6,7 @@ using OpenAgents.OrchestratorApi.Background;
 using OpenAgents.OrchestratorApi.Data;
 using OpenAgents.OrchestratorApi.Endpoints;
 using OpenAgents.OrchestratorApi.Infrastructure;
+using OpenAgents.OrchestratorApi.Infrastructure.AgentContainers;
 using OpenAgents.OrchestratorApi.Options;
 using OpenAgents.OrchestratorApi.Repositories;
 using OpenAgents.OrchestratorApi.Services;
@@ -14,6 +15,13 @@ using OpenAgents.OrchestratorApi.Services;
 var startedAt = DateTime.UtcNow;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Load .env file for local credentials (API keys, tokens).
+// DotNetEnv.Env.Load() sets process environment variables by default,
+// which is how ProviderLaunchEnvironmentBuilder reads passthrough credentials.
+var envFile = Path.Combine(builder.Environment.ContentRootPath, ".env");
+if (File.Exists(envFile))
+    DotNetEnv.Env.Load(envFile);
 
 // ──────────────────────────────────────────────────────────────
 // Configuration
@@ -24,7 +32,42 @@ builder.Services.Configure<OrchestratorOptions>(
 
 builder.Services.AddSingleton(sp =>
     sp.GetRequiredService<IOptions<OrchestratorOptions>>().Value);
-builder.Services.AddSingleton<IProviderManifestCatalog, FileSystemProviderManifestCatalog>();
+
+// ── Provider catalog: filesystem + optional AgentContainers registry ──
+builder.Services.AddSingleton<FileSystemProviderManifestCatalog>();
+
+var acOptions = builder.Configuration
+    .GetSection($"{OrchestratorOptions.SectionName}:AgentContainers")
+    .Get<AgentContainersOptions>() ?? new();
+
+if (acOptions is { Enabled: true, Mode: "local" } && !string.IsNullOrWhiteSpace(acOptions.LocalRepoPath))
+{
+    if (acOptions.LoadEnvMetadataFromDefinitions)
+        builder.Services.AddSingleton<IAgentContainersEnvMetadataLoader, YamlDefinitionsEnvMetadataLoader>();
+    else
+        builder.Services.AddSingleton<IAgentContainersEnvMetadataLoader, NullEnvMetadataLoader>();
+
+    builder.Services.AddSingleton<LocalFileAgentContainersCatalog>();
+    builder.Services.AddSingleton<IProviderManifestCatalog>(sp => new CompositeProviderManifestCatalog([
+        sp.GetRequiredService<FileSystemProviderManifestCatalog>(),
+        sp.GetRequiredService<LocalFileAgentContainersCatalog>()
+    ]));
+}
+else if (acOptions is { Enabled: true, Mode: "remote" })
+{
+    builder.Services.AddHttpClient("AgentContainers");
+    builder.Services.AddSingleton<RemoteAgentContainersCatalog>();
+    builder.Services.AddSingleton<IProviderManifestCatalog>(sp => new CompositeProviderManifestCatalog([
+        sp.GetRequiredService<FileSystemProviderManifestCatalog>(),
+        sp.GetRequiredService<RemoteAgentContainersCatalog>()
+    ]));
+}
+else
+{
+    builder.Services.AddSingleton<IProviderManifestCatalog>(sp =>
+        sp.GetRequiredService<FileSystemProviderManifestCatalog>());
+}
+
 builder.Services.AddSingleton<IWorkflowManifestCatalog, FileSystemWorkflowManifestCatalog>();
 
 // ──────────────────────────────────────────────────────────────
@@ -205,6 +248,28 @@ app.MapProviderEndpoints();
 app.MapWorkflowEndpoints();
 
 // ──────────────────────────────────────────────────────────────
+// SPA Proxy (development only)
+// ──────────────────────────────────────────────────────────────
+
+// SPA: in development, launch Next.js dev server and proxy non-API requests to it.
+// Disabled during integration tests (WebApplicationFactory sets SUPPRESS_SPA_PROXY=true).
+var suppressSpa = app.Configuration.GetValue<bool>("SUPPRESS_SPA_PROXY")
+    || !app.Configuration.GetValue<bool>($"{OrchestratorOptions.SectionName}:SpaProxy");
+if (app.Environment.IsDevelopment() && !suppressSpa)
+{
+    // Only proxy to the SPA for requests that don't match API routes
+    app.MapWhen(
+        context => !context.Request.Path.StartsWithSegments("/api") &&
+                   !context.Request.Path.StartsWithSegments("/healthz"),
+        spaApp =>
+        {
+            spaApp.UseSpa(spa =>
+            {
+                spa.Options.SourcePath = Path.Combine(app.Environment.ContentRootPath, "..", "..", "apps", "orchestrator-web");
+                spa.UseNextJsDevelopmentServer(npmScript: "dev", port: 3000, packageManager: "pnpm");
+            });
+        });
+}
 
 app.Run();
 

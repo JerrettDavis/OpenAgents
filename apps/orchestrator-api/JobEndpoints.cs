@@ -156,6 +156,43 @@ public static class JobEndpoints
         PropertyNameCaseInsensitive = true
     };
 
+    /// <summary>
+    /// Checks if a provider is compatible with a workflow. For AgentContainers providers
+    /// (prefixed with "ac-"), also checks if any of the embedded agent names match
+    /// a compatible provider (e.g., "ac-dotnet-codex" matches "codex").
+    /// </summary>
+    private static bool IsProviderCompatible(
+        string providerId,
+        IReadOnlyList<WorkflowManifestCompatibility> compatibility)
+    {
+        // Direct match
+        if (compatibility.Any(pc =>
+                string.Equals(pc.ProviderId, providerId, StringComparison.OrdinalIgnoreCase) &&
+                pc.SupportLevel != ProviderSupportLevel.Unsupported))
+            return true;
+
+        // For AC providers, check if any compatible provider ID matches an agent
+        // embedded in the AC image name (e.g., "ac-dotnet-claude" matches "claude-code"
+        // because segment "claude" is a prefix of "claude-code"; "ac-dotnet-codex"
+        // matches "codex" exactly)
+        if (providerId.StartsWith("ac-", StringComparison.OrdinalIgnoreCase))
+        {
+            var segments = providerId["ac-".Length..].Split('-');
+            foreach (var pc in compatibility)
+            {
+                if (pc.SupportLevel == ProviderSupportLevel.Unsupported) continue;
+                // Exact segment match (e.g., "codex" in segments matches provider "codex")
+                if (segments.Contains(pc.ProviderId, StringComparer.OrdinalIgnoreCase))
+                    return true;
+                // Prefix match (e.g., segment "claude" matches provider "claude-code")
+                if (segments.Any(s => pc.ProviderId.StartsWith(s, StringComparison.OrdinalIgnoreCase)))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
     public static void MapJobEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/v1/jobs").WithTags("Jobs");
@@ -296,9 +333,7 @@ public static class JobEndpoints
         var workflowManifest = workflowCatalog.GetBySlug(workflow.Slug);
         if (workflowManifest is not null &&
             workflowManifest.ProviderCompatibility.Count > 0 &&
-            !workflowManifest.ProviderCompatibility.Any(pc =>
-                string.Equals(pc.ProviderId, provider.ProviderId, StringComparison.OrdinalIgnoreCase) &&
-                pc.SupportLevel != ProviderSupportLevel.Unsupported))
+            !IsProviderCompatible(provider.ProviderId, workflowManifest.ProviderCompatibility))
         {
             return ApiErr(
                 400,

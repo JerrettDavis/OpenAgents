@@ -42,4 +42,8 @@ public record ContainerStartRequest(
     string WorkspaceContainerPath,
     IReadOnlyDictionary<string, string> EnvironmentVariables,
     string? SharedWorkspaceVolumeName = null,
-    string? SharedWorkspaceVolumeMountPath = null);
+    string? SharedWorkspaceVolumeMountPath = null,
+    IReadOnlyList<BindMount>? AdditionalMounts = null);
+
+/// <summary>A bind mount from host path to container path (read-only by default).</summary>
+public record BindMount(string HostPath, string ContainerPath, bool ReadOnly = true);

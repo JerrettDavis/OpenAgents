@@ -1,18 +1,5 @@
 import type { Metadata } from 'next';
-import { IBM_Plex_Sans, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
-
-const bodyFont = IBM_Plex_Sans({
-  variable: '--font-body',
-  weight: ['400', '500', '600', '700'],
-  subsets: ['latin'],
-});
-
-const monoFont = JetBrains_Mono({
-  variable: '--font-geist-mono',
-  weight: ['400', '500', '600'],
-  subsets: ['latin'],
-});
 
 export const metadata: Metadata = {
   title: {
@@ -28,7 +15,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${bodyFont.variable} ${monoFont.variable} h-full antialiased`}>
+    <html lang="en" className="h-full antialiased">
       <body className="flex min-h-full flex-col">
         <a
           href="#app-main"

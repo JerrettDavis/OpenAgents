@@ -52,9 +52,15 @@ export JOB_ID WORKFLOW_ID STAGE_ID TASK_ID AGENT_ID PROVIDER_ID WORKSPACE_PATH
 ERRORS=0
 
 if [ -z "${ANTHROPIC_API_KEY:-}" ]; then
-    echo "[entrypoint] ERROR: ANTHROPIC_API_KEY is not set." >&2
-    echo "[entrypoint] Provide it with -e ANTHROPIC_API_KEY=sk-ant-... or via the orchestrator's secrets injection." >&2
-    ERRORS=$((ERRORS + 1))
+    # Check for OAuth credentials (mounted from host ~/.claude)
+    CLAUDE_CREDS="${HOME}/.claude/.credentials.json"
+    if [ -f "$CLAUDE_CREDS" ]; then
+        echo "[entrypoint] Using OAuth credentials from $CLAUDE_CREDS"
+    else
+        echo "[entrypoint] ERROR: ANTHROPIC_API_KEY is not set and no OAuth credentials found." >&2
+        echo "[entrypoint] Provide -e ANTHROPIC_API_KEY=sk-ant-... or mount ~/.claude for OAuth." >&2
+        ERRORS=$((ERRORS + 1))
+    fi
 fi
 if [ -z "$JOB_ID" ]; then
     echo "[entrypoint] ERROR: JOB_ID is not set." >&2
@@ -90,7 +96,7 @@ export WORKFLOW_VERSION
     "agent.started" \
     "Agent started" \
     "Claude Code agent started for job $JOB_ID stage $STAGE_ID" \
-    "{\"model\": \"$PRIMARY_MODEL\", \"provider\": \"$PROVIDER_ID\"}"
+    "{\"model\": \"$PRIMARY_MODEL\", \"provider\": \"$PROVIDER_ID\"}" || true
 
 # ── 4. Boundary-based mailbox polling ─────────────────────────────────────────
 PENDING="$WORKSPACE_PATH/.agent-orch/mailbox-index/pending-notifications.md"
@@ -162,14 +168,14 @@ if [ "$CLAUDE_EXIT" -eq 0 ]; then
         "agent.completed" \
         "Agent completed" \
         "Claude Code agent completed job $JOB_ID stage $STAGE_ID" \
-        "{\"exit_code\": 0, \"provider\": \"$PROVIDER_ID\"}"
+        "{\"exit_code\": 0, \"provider\": \"$PROVIDER_ID\"}" || true
     echo "[entrypoint] Agent completed successfully."
 else
     /usr/local/bin/emit-event.sh \
         "agent.failed" \
         "Agent failed" \
         "Claude Code agent failed for job $JOB_ID stage $STAGE_ID (exit code $CLAUDE_EXIT)" \
-        "{\"exit_code\": $CLAUDE_EXIT, \"provider\": \"$PROVIDER_ID\"}"
+        "{\"exit_code\": $CLAUDE_EXIT, \"provider\": \"$PROVIDER_ID\"}" || true
     echo "[entrypoint] Agent exited with code $CLAUDE_EXIT." >&2
 fi
 
