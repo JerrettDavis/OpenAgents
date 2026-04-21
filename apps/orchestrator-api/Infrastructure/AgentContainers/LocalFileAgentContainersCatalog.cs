@@ -29,8 +29,7 @@ public sealed class LocalFileAgentContainersCatalog : IProviderManifestCatalog
     {
         var catalogPath = Path.Combine(options.LocalRepoPath, "generated", "image-catalog.json");
         if (!File.Exists(catalogPath))
-            throw new FileNotFoundException(
-                $"AgentContainers image-catalog.json not found at: {catalogPath}. Check AgentContainers:LocalRepoPath configuration.");
+            return []; // Graceful degradation — AC repo not present (e.g., CI)
 
         var json = File.ReadAllText(catalogPath);
         var catalog = JsonSerializer.Deserialize<ImageCatalogJson>(json)
