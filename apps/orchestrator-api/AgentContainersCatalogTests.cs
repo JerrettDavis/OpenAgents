@@ -180,6 +180,15 @@ public sealed class AgentContainersCatalogTests
 
     private static string GetAgentContainersRepoPath()
     {
+        // Allow CI / custom setups to point the tests at an explicit checkout.
+        var envOverride = Environment.GetEnvironmentVariable("AGENT_CONTAINERS_PATH");
+        if (!string.IsNullOrWhiteSpace(envOverride))
+        {
+            var resolvedEnv = Path.GetFullPath(envOverride);
+            if (File.Exists(Path.Combine(resolvedEnv, "generated", "image-catalog.json")))
+                return resolvedEnv;
+        }
+
         // Check common locations
         var candidates = new[] { "C:/git/AgentContainers", "../../../AgentContainers" };
         foreach (var path in candidates)

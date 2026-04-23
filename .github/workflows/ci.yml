@@ -14,6 +14,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Checkout AgentContainers
+        uses: actions/checkout@v4
+        with:
+          repository: JerrettDavis/AgentContainers
+          path: .agent-containers
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
@@ -34,9 +40,13 @@ jobs:
         run: pnpm format:check
 
       - name: API tests
+        env:
+          AGENT_CONTAINERS_PATH: ${{ github.workspace }}/.agent-containers
         run: dotnet test apps/orchestrator-api/OpenAgents.OrchestratorApi.csproj -v minimal
 
       - name: API coverage
+        env:
+          AGENT_CONTAINERS_PATH: ${{ github.workspace }}/.agent-containers
         run: pnpm test:coverage:api
 
       - name: Web type-check
