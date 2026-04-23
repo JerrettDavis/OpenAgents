@@ -251,3 +251,6 @@ docs/api/toc.yml
 
 # Agent outputs
 agent-output/
+
+# External repo checkouts (CI only, never committed)
+.agent-containers/
