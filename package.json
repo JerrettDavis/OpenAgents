@@ -32,7 +32,7 @@
     "docs:serve": "docfx docs/docfx.json --serve"
   },
   "devDependencies": {
-    "prettier": "^3.8.3"
+    "prettier": "^3.8.4"
   },
   "pnpm": {
     "overrides": {
