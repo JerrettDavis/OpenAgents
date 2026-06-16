@@ -5,7 +5,7 @@ FROM node:26-alpine AS deps
 WORKDIR /app
 
 # Enable corepack for pnpm
-RUN corepack enable
+RUN npm install -g corepack@latest && corepack enable
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/orchestrator-web/package.json apps/orchestrator-web/package.json
@@ -17,7 +17,7 @@ RUN pnpm install --filter orchestrator-web... --frozen-lockfile
 FROM node:26-alpine AS build
 WORKDIR /app
 
-RUN corepack enable
+RUN npm install -g corepack@latest && corepack enable
 
 COPY --from=deps /app/ ./
 COPY tsconfig.base.json ./tsconfig.base.json
