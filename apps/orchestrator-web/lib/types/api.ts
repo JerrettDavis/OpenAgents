@@ -54,13 +54,7 @@ export type ApiJobOutcome =
   | 'Invalid';
 
 export type ApiConnectionStatus =
-  | 'Unknown'
-  | 'Connecting'
-  | 'Connected'
-  | 'Flakey'
-  | 'Failing'
-  | 'Failed'
-  | 'Disconnected';
+  'Unknown' | 'Connecting' | 'Connected' | 'Flakey' | 'Failing' | 'Failed' | 'Disconnected';
 
 // ── Job (list item) ──────────────────────────────────────────────────
 
