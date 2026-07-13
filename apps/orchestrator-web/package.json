@@ -29,6 +29,6 @@
     "@types/react-dom": "^19",
     "rimraf": "^6",
     "tailwindcss": "^4",
-    "typescript": "^6"
+    "typescript": "^7"
   }
 }
