@@ -9,6 +9,11 @@ const nextConfig = {
   // Required for multi-stage Docker builds (Dockerfile copies .next/standalone)
   output: "standalone",
 
+  // TypeScript 7+ removed the compiler API; use the CLI instead
+  experimental: {
+    useTypeScriptCli: true,
+  },
+
   // In Docker, pnpm installs workspace dependencies at the monorepo root.
   // Include the repo root in output tracing so standalone output contains Next.
   outputFileTracingRoot: join(__dirname, "../../"),
