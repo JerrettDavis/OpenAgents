@@ -1,7 +1,7 @@
 # ──────────────────────────────────────────────────────────────
 # Stage 1 – build
 # ──────────────────────────────────────────────────────────────
-FROM mcr.microsoft.com/dotnet/sdk:10.0.302 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0.400 AS build
 WORKDIR /src
 
 # Copy solution and project files first for layer-cached restore
@@ -23,7 +23,7 @@ RUN dotnet publish apps/orchestrator-api/OpenAgents.OrchestratorApi.csproj \
 # ──────────────────────────────────────────────────────────────
 # Stage 2 – runtime
 # ──────────────────────────────────────────────────────────────
-FROM mcr.microsoft.com/dotnet/aspnet:10.0.10 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:10.0.11 AS runtime
 WORKDIR /app
 
 RUN apt-get update \
